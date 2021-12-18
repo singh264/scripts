@@ -1,20 +1,16 @@
 #!/bin/bash
 
-echo "omr_checkout_remote_branch.sh"
+echo "create_a_new_encoded_file.sh"
 
 if [ "$#" -ne 1 ]
 then
-   echo "remote branch absent"
-   exit
+    echo "string absent"
+    exit
 fi
 
-BRANCH=$1
-DIRECTORY="openj9-openjdk-jdk8/omr"
-cd $PWD/$DIRECTORY
-git remote add local git@github.com:singh264/omr.git
-git fetch --prune local
-git checkout -b $BRANCH local/$BRANCH
-
-git log
-
-cd -
+STRING=$1
+encoded_string=$(echo "$STRING" | base64)
+decoded_string=$(echo "$encoded_string" | base64 --decode)
+vim "${encoded_string:0:55}".txt
+echo "${encoded_string:0:55}"
+echo $decoded_string
