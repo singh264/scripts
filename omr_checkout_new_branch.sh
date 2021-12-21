@@ -2,14 +2,14 @@
 
 create_the_new_branch()
 {
-   date=$(echo "$(date '+%b%d')" | awk '{print tolower($1)}')
-   git checkout -b "$BRANCH"_$date
+    date=$(echo "$(date '+%b%d')" | awk '{print tolower($1)}')
+    git checkout -b "$BRANCH"_$date
 }
 
 if [ "$#" -ne 1 ]
 then
-   echo "branch absent"
-   exit
+    echo "branch absent"
+    exit
 fi
 
 BRANCH=$1
