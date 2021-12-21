@@ -4,8 +4,8 @@ echo "openj9_checkout_remote_branch.sh"
 
 if [ "$#" -ne 1 ]
 then
-   echo "remote branch absent"
-   exit
+    echo "remote branch absent"
+    exit
 fi
 
 BRANCH=$1
