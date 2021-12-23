@@ -1,16 +1,40 @@
 #!/bin/bash
 
-echo "create_a_new_encoded_file.sh"
+echo "openj9_cherry-pick.sh"
 
 if [ "$#" -ne 1 ]
 then
-    echo "string absent"
+    echo "commit absent"
     exit
 fi
 
-STRING=$1
-encoded_string=$(echo "$STRING" | base64)
-decoded_string=$(echo "$encoded_string" | base64 --decode)
-vim "${encoded_string:0:55}".txt
-echo "${encoded_string:0:55}"
-echo $decoded_string
+#brew install wget
+
+COMMIT=$1
+DIRECTORY=/home/amar/cache_the_result_of_objectAlignmentInBytes
+#DIRECTORY=$PWD
+cd $DIRECTORY/openj9-openjdk-jdk8/openj9
+git remote add local https://github.com/singh264/openj9.git
+git fetch --prune local
+git cherry-pick $COMMIT
+A=$(git reset HEAD^1)
+git diff
+B=$(git reset HEAD@{1})
+cd $DIRECTORY
+
+C=( "cpp" "hpp" )
+for var in $A
+do
+    file=$(echo "$var" | rev | cut -d'.' -f1 | rev)
+    if [[ " ${C[@]} " =~ " $file " ]]
+    then
+	file=$(echo "$var" | rev | cut -d'/' -f1 | rev)
+	rm $file $file.*
+	wget https://raw.githubusercontent.com/eclipse-openj9/openj9/master/$var
+	sleep 5
+	vimdiff $DIRECTORY/$file $DIRECTORY/openj9-openjdk-jdk8/openj9/$var
+	#vimdiff $file $var
+    fi
+done
+
+git log
