@@ -16,7 +16,7 @@ BRANCH=$1
 DIRECTORY="openj9-openjdk-jdk8/openj9"
 cd $PWD/$DIRECTORY
 create_the_new_branch
-#git remote add $NAME $URL
+git remote add upstream git@github.com:eclipse-openj9/openj9.git
 git fetch --prune upstream
 git rebase -i upstream/master
 
