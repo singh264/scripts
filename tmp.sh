@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "openj9_checkout_upstream_branch.sh"
+echo "omr_checkout_upstream_branch.sh"
 
 if [ "$#" -ne 1 ]
 then
@@ -9,9 +9,9 @@ then
 fi
 
 BRANCH=$1
-DIRECTORY="openj9-openjdk-jdk8/openj9"
+DIRECTORY="openj9-openjdk-jdk8/omr"
 cd $PWD/$DIRECTORY
-git remote add upstream git@github.com:eclipse-openj9/openj9.git
+git remote add upstream git@github.com:eclipse/omr.git
 git fetch --prune upstream
 git checkout -b $BRANCH upstream/$BRANCH
 git reset --hard upstream/$BRANCH
