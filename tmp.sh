@@ -1,20 +1,28 @@
 #!/bin/bash
 
-echo "omr_checkout_upstream_branch.sh"
+echo "openj9_checkout_new_branch.sh"
+
+create_the_new_branch()
+{
+    date=$(echo "$(date '+%b%d')" | awk '{print tolower($1)}')
+    #git checkout -b "$1"_$date
+    git checkout -b "$BRANCH"_$date
+}
 
 if [ "$#" -ne 1 ]
 then
-    echo "upstream branch absent"
+    echo "branch absent"
     exit
 fi
 
 BRANCH=$1
-DIRECTORY="openj9-openjdk-jdk8/omr"
+DIRECTORY="openj9-openjdk-jdk8/openj9"
 cd $PWD/$DIRECTORY
-git remote add upstream git@github.com:eclipse/omr.git
+#create_the_new_branch $BRANCH
+create_the_new_branch
+git remote add upstream git@github.com:eclipse-openj9/openj9.git
 git fetch --prune upstream
-git checkout -b $BRANCH upstream/$BRANCH
-git reset --hard upstream/$BRANCH
+git rebase -i upstream/master
 
 git log
 
