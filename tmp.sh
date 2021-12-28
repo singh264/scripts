@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "openj9_checkout_new_branch.sh"
+echo "omr_checkout_new_branch.sh"
 
 create_the_new_branch()
 {
@@ -16,11 +16,10 @@ then
 fi
 
 BRANCH=$1
-DIRECTORY="openj9-openjdk-jdk8/openj9"
+DIRECTORY="openj9-openjdk-jdk8/omr"
 cd $PWD/$DIRECTORY
-#create_the_new_branch $BRANCH
-create_the_new_branch
-git remote add upstream git@github.com:eclipse-openj9/openj9.git
+create_the_new_branch $BRANCH
+git remote add upstream git@github.com:eclipse/omr.git
 git fetch --prune upstream
 git rebase -i upstream/master
 
