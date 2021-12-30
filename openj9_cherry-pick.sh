@@ -1,10 +1,26 @@
 #!/bin/sh
 
+install_wget()
+{
+    OS=$(uname -s)
+    if [[ "$OS" == "Darwin" ]]
+    then
+	echo "Install wget on macOS."
+	brew install wget
+    elif [[ "$OS" == "Linux" ]]
+    then
+        echo "Install wget on Linux."
+        sudo apt-get install wget
+    fi
+}
+
 if [ "$#" -ne 1 ]
 then
     echo "commit absent"
     exit
 fi
+
+install_wget
 
 COMMIT=$1
 DIRECTORY=/home/amar/cache_the_result_of_objectAlignmentInBytes
