@@ -23,7 +23,7 @@ fi
 install_wget
 
 COMMIT=$1
-DIRECTORY=/home/amar/cache_the_result_of_objectAlignmentInBytes
+DIRECTORY=$PWD
 cd $DIRECTORY/openj9-openjdk-jdk8/openj9
 git remote add local https://github.com/singh264/openj9.git
 git fetch --prune local
@@ -46,5 +46,7 @@ do
 	vimdiff $DIRECTORY/$file $DIRECTORY/openj9-openjdk-jdk8/openj9/$var
     fi
 done
+
+cd $DIRECTORY/openj9-openjdk-jdk8/openj9
 
 git log
