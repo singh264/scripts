@@ -43,7 +43,12 @@ do
 	rm $file $file.*
 	wget https://raw.githubusercontent.com/eclipse-openj9/openj9/master/$var
 	sleep 5
-	vimdiff $DIRECTORY/$file $DIRECTORY/openj9-openjdk-jdk8/openj9/$var
+	if [ -d "$DIRECTORY/openj9-openjdk-jdk8/openj9" ]
+	then
+	    vimdiff $DIRECTORY/$file $DIRECTORY/openj9-openjdk-jdk8/openj9/$var
+	else
+	    vimdiff $file $var
+	fi
     fi
 done
 
