@@ -1,10 +1,10 @@
 #!/bin/bash
 
-echo "omr_checkout_remote_branch.sh"
+echo "omr_checkout_upstream_branch.sh"
 
 if [ "$#" -ne 1 ]
 then
-    echo "remote branch absent"
+    echo "upstream branch absent"
     exit
 fi
 
@@ -13,10 +13,10 @@ BRANCH=$1
 DIRECTORY="openj9-openjdk-jdk8/omr"
 #cd $DIRECTORY/openj9-openjdk-jdk8/omr
 cd $PWD/$DIRECTORY
-git remote add local git@github.com:singh264/omr.git
-git fetch --prune local
-git checkout -b $BRANCH local/$BRANCH
-git reset --hard local/$BRANCH
+git remote add upstream git@github.com:eclipse/omr.git
+git fetch --prune upstream
+git checkout -b $BRANCH upstream/$BRANCH
+git reset --hard upstream/$BRANCH
 
 git log
 
