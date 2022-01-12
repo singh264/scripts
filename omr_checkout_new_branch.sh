@@ -3,7 +3,7 @@
 create_the_new_branch()
 {
     date=$(echo "$(date '+%b%d')" | awk '{print tolower($1)}')
-    git checkout -b "$BRANCH"_$date
+    git checkout -b $1_$date
 }
 
 if [ "$#" -ne 1 ]
