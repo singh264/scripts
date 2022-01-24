@@ -35,7 +35,7 @@ wget_download_dependencies()
     tar -xvf $DIRECTORY/ibm-semeru-open-jdk_x64_linux_8u312b07_openj9-0.29.0.tar.gz 
 
     wget https://repo1.maven.org/maven2/ant-contrib/ant-contrib/1.0b3/ant-contrib-1.0b3.jar
-    cp $DIRECTORY/ant-contrib-1.0b3.jar /usr/share/ant/lib/
+    sudo cp $DIRECTORY/ant-contrib-1.0b3.jar /usr/share/ant/lib/
 }
 
 DIRECTORY=$PWD
