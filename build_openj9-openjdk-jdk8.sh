@@ -36,7 +36,6 @@ DIRECTORY=openj9-openjdk-jdk8
 if [ -d "$DIRECTORY" ]; then
     echo "$DIRECTORY exists"
     rename_the_build_directory $DIRECTORY
-    exit
 fi
 
 git clone https://github.com/ibmruntimes/openj9-openjdk-jdk8.git 
