@@ -9,12 +9,12 @@ then
 fi
 
 BRANCH=$1
-DIRECTORY="openj9-openjdk-jdk8/omr"
-cd $PWD/$DIRECTORY
+DIRECTORY=$PWD
+cd $DIRECTORY/openj9-openjdk-jdk8/omr
 git remote add local git@github.com:singh264/omr.git
 git fetch --prune local
 git checkout -b $BRANCH local/$BRANCH
 
 git log
 
-cd -
+cd $DIRECTORY
