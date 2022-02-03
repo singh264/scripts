@@ -16,6 +16,4 @@ git fetch --prune local
 git checkout -b $BRANCH local/$BRANCH
 git reset --hard local/$BRANCH
 
-git log
-
 cd -
