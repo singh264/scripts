@@ -20,3 +20,5 @@ do
 done
 
 git log
+
+cd $DIRECTORY
