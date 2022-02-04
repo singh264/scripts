@@ -55,3 +55,5 @@ done
 cd $DIRECTORY/openj9-openjdk-jdk8/openj9
 
 git log
+
+cd $DIRECTORY
