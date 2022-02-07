@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "create_a_new_encoded_file.sh"
+
 if [ "$#" -ne 1 ]
 then
     echo "string absent"
