@@ -11,7 +11,7 @@ fi
 BRANCH=$1
 DIRECTORY=$PWD
 cd $DIRECTORY/openj9-openjdk-jdk8/openj9
-git remote add local git@github.com:singh264/openj9.git
+git remote add local https://github.com/singh264/openj9.git
 git fetch --prune local
 git checkout -b $BRANCH local/$BRANCH
 git reset --hard local/$BRANCH
