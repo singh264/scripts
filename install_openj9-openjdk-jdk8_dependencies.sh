@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "install_openj9-openjdk-jdk8_dependencies.sh"
+
 apt-get_install_dependencies()
 {
     sudo apt-get update
