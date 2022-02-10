@@ -2,21 +2,19 @@
 
 echo "test_openj9-openjdk-jdk8.sh"
 
-images_directory_path=""
-
-initialize_the_images_directory_path()
+get_the_images_directory_path()
 {
-    DIRECTORY=$PWD
-    if [ -d "$DIRECTORY/openj9-openjdk-jdk8/build/linux-ppc64le-normal-server-release/images" ]
+    if [ -d "$1/openj9-openjdk-jdk8/build/linux-ppc64le-normal-server-release/images" ]
     then
-	images_directory_path="$DIRECTORY/openj9-openjdk-jdk8/build/linux-ppc64le-normal-server-release/images"
-    elif [ -d "$DIRECTORY/openj9-openjdk-jdk8/build/linux-x86_64-normal-server-release/images" ]
+	echo "$1/openj9-openjdk-jdk8/build/linux-ppc64le-normal-server-release/images"
+    elif [ -d "$1/openj9-openjdk-jdk8/build/linux-x86_64-normal-server-release/images" ]
     then
-	images_directory_path="$DIRECTORY/openj9-openjdk-jdk8/build/linux-x86_64-normal-server-release/images"
+	echo "$1/openj9-openjdk-jdk8/build/linux-x86_64-normal-server-release/images"
     fi
 }
 
-initialize_the_images_directory_path
+DIRECTORY=$PWD
+images_directory_path=$(get_the_images_directory_path $DIRECTORY)
 COMPILE_JDK_HOME=$images_directory_path/j2sdk-image
 if [ $# -eq 1 ]
 then
