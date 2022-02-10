@@ -26,20 +26,20 @@ initialize_the_directory_paths()
 
 rename_the_build_directory()
 {
-    DIRECTORY=$1
     date=$(echo "$(date '+%b%d')" | awk '{print tolower($1)}')
-    mv $DIRECTORY "$DIRECTORY"_$date
+    mv $1 $1_$date
 }
 
 INPUT="$@"
-DIRECTORY=openj9-openjdk-jdk8
-if [ -d "$DIRECTORY" ]; then
-    echo "$DIRECTORY exists"
-    rename_the_build_directory $DIRECTORY
+DIRECTORY=$PWD
+build_directory="$DIRECTORY/openj9-openjdk-jdk8"
+if [ -d $build_directory ]; then
+    echo "$build_directory exists"
+    rename_the_build_directory $build_directory
 fi
 
 git clone https://github.com/ibmruntimes/openj9-openjdk-jdk8.git 
-cd openj9-openjdk-jdk8 
+cd $build_directory
 bash get_source.sh 
 initialize_the_directory_paths $INPUT
 bash configure --with-boot-jdk=$boot_jdk_directory_path --with-freetype-include=$freetype_include_directory_path --with-freetype-lib=$freetype_lib_directory_path
