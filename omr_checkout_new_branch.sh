@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "omr_checkout_new_branch.sh"
+
 create_the_new_branch()
 {
     date=$(echo "$(date '+%b%d')" | awk '{print tolower($1)}')
