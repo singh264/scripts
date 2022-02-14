@@ -64,7 +64,7 @@ install_git
 DIRECTORY=$PWD
 scripts_directory_path=$(create_the_scripts_directory_path $DIRECTORY)
 bash $scripts_directory_path/install_openj9-openjdk-jdk8_dependencies.sh
-bash $scripts_directory_path/build_openj9-openjdk-jdk8.sh --with-boot-jdk=/home/user/jdk8u312-b07 --with-freetype-include=/usr/include/freetype2 --with-freetype-lib=/usr/lib/x86_64-linux-gnu
+bash $scripts_directory_path/build_openj9-openjdk-jdk8.sh --with-boot-jdk=$PWD/jdk8u312-b07 --with-freetype-include=/usr/include/freetype2 --with-freetype-lib=/usr/lib/x86_64-linux-gnu
 bash $scripts_directory_path/openj9_checkout_remote_branch.sh $openj9_branch
 cd $DIRECTORY/openj9-openjdk-jdk8
 make all
