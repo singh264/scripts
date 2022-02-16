@@ -1,5 +1,7 @@
 #!/bin/sh
 
+echo "build_openj9-openjdk-jdk8.sh"
+
 boot_jdk_directory_path=""
 freetype_include_directory_path=""
 freetype_lib_directory_path=""
