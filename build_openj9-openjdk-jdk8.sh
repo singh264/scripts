@@ -32,6 +32,31 @@ rename_the_build_directory()
     mv $1 $1_$date
 }
 
+create_the_scripts_directory_path()
+{
+    mkdir -p $1/git
+    cd $1/git
+    git clone https://github.com/singh264/scripts.git
+    cd $1
+    echo "$1/git/scripts"
+}
+
+configure()
+{
+    if [[ ! -d $boot_jdk_directory_path || \
+	  ! -d $freetype_include_directory_path || \
+	  ! -d $freetype_lib_directory_path ]]
+    then
+	scripts_directory_path=$(create_the_scripts_directory_path $1)
+	bash $scripts_directory_path/install_openj9-openjdk-jdk8_dependencies.sh
+	boot_jdk_directory_path=$1/jdk8u312-b07
+	freetype_include_directory_path=/usr/include/freetype2
+	freetype_lib_directory_path=/usr/lib/x86_64-linux-gnu
+    fi
+
+    bash configure --with-boot-jdk=$boot_jdk_directory_path --with-freetype-include=$freetype_include_directory_path --with-freetype-lib=$freetype_lib_directory_path
+}
+
 INPUT="$@"
 DIRECTORY=$PWD
 build_directory="$DIRECTORY/openj9-openjdk-jdk8"
@@ -44,5 +69,5 @@ git clone https://github.com/ibmruntimes/openj9-openjdk-jdk8.git
 cd $build_directory
 bash get_source.sh 
 initialize_the_directory_paths $INPUT
-bash configure --with-boot-jdk=$boot_jdk_directory_path --with-freetype-include=$freetype_include_directory_path --with-freetype-lib=$freetype_lib_directory_path
+configure $DIRECTORY
 make all
