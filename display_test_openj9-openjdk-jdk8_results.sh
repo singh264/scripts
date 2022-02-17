@@ -28,7 +28,7 @@ install_git()
     elif [ $OS = "Linux" ]
     then
         echo "Install git on Linux."
-        sudo apt-get install git
+        sudo apt-get -y install git
     fi
 }
 
