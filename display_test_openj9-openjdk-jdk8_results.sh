@@ -51,6 +51,13 @@ display_the_test_openj9-openjdk-jdk8_results()
     fi
 }
 
+verify_the_branch_in_the_build()
+{
+    directory_path=$1/openj9-openjdk-jdk8/build/linux-x86_64-normal-server-release/images/test/openj9
+    output=$(cat $directory_path/java-version.txt | grep $2 | cut -d' ' -f5 | cut -d'-' -f1)
+    echo $output
+}
+
 INPUT="$@"
 initialize_the_openj9_branch $INPUT
 if [ -z "$openj9_branch" ]
@@ -68,6 +75,14 @@ bash $scripts_directory_path/build_openj9-openjdk-jdk8.sh --with-boot-jdk=$PWD/j
 bash $scripts_directory_path/openj9_checkout_remote_branch.sh $openj9_branch
 cd $DIRECTORY/openj9-openjdk-jdk8
 make all
+
+branch=$(verify_the_branch_in_the_build $DIRECTORY $openj9_branch)
+if [ $branch != $openj9_branch ]
+then
+    echo "The build could not complete with the openj9 branch $openj9_branch"
+    exit
+fi
+
 cd $DIRECTORY
 bash $scripts_directory_path/test_openj9-openjdk-jdk8.sh
 display_the_test_openj9-openjdk-jdk8_results $DIRECTORY
