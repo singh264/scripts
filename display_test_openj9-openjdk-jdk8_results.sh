@@ -77,7 +77,7 @@ cd $DIRECTORY/openj9-openjdk-jdk8
 make all
 
 branch=$(verify_the_branch_in_the_build $DIRECTORY $openj9_branch)
-if [ $branch != $openj9_branch ]
+if [[ -z "$branch" || $branch != $openj9_branch ]]
 then
     echo "The build could not complete with the openj9 branch $openj9_branch"
     exit
