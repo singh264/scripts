@@ -28,25 +28,25 @@ obtain_the_directory_paths()
 
 initialize_the_directory_paths_that_are_absent()
 {
-    if [[ ! -d $boot_jdk_directory_path || \
-	  ! -d $freetype_include_directory_path || \
-	  ! -d $freetype_lib_directory_path ]]
+    if [[ ! -d "$boot_jdk_directory_path" || \
+	  ! -d "$freetype_include_directory_path" || \
+	  ! -d "$freetype_lib_directory_path" ]]
     then
 	scripts_directory_path=$(create_the_scripts_directory_path $1)
 	bash $scripts_directory_path/install_openj9-openjdk-jdk8_dependencies.sh
     fi
 
-    if [ ! -d $boot_jdk_directory_path ]
+    if [ ! -d "$boot_jdk_directory_path" ]
     then
 	boot_jdk_directory_path=$1/jdk8u312-b07
     fi
 
-    if [ ! -d $freetype_include_directory_path ]
+    if [ ! -d "$freetype_include_directory_path" ]
     then
 	freetype_include_directory_path=/usr/include/freetype2
     fi
 
-    if [ ! -d $freetype_lib_directory_path ]
+    if [ ! -d "$freetype_lib_directory_path" ]
     then
 	freetype_lib_directory_path=/usr/lib/x86_64-linux-gnu
     fi
