@@ -6,7 +6,7 @@ boot_jdk_directory_path=""
 freetype_include_directory_path=""
 freetype_lib_directory_path=""
 
-obtain_the_directory_paths()
+initialize_the_directory_paths()
 {
     for var in "$@"
     do
@@ -26,32 +26,6 @@ obtain_the_directory_paths()
     done
 }
 
-initialize_the_directory_paths_that_are_absent()
-{
-    if [[ ! -d "$boot_jdk_directory_path" || \
-	  ! -d "$freetype_include_directory_path" || \
-	  ! -d "$freetype_lib_directory_path" ]]
-    then
-	scripts_directory_path=$(create_the_scripts_directory_path $1)
-	bash $scripts_directory_path/install_openj9-openjdk-jdk8_dependencies.sh
-    fi
-
-    if [ ! -d "$boot_jdk_directory_path" ]
-    then
-	boot_jdk_directory_path=$1/jdk8u312-b07
-    fi
-
-    if [ ! -d "$freetype_include_directory_path" ]
-    then
-	freetype_include_directory_path=/usr/include/freetype2
-    fi
-
-    if [ ! -d "$freetype_lib_directory_path" ]
-    then
-	freetype_lib_directory_path=/usr/lib/x86_64-linux-gnu
-    fi
-}
-
 rename_the_build_directory()
 {
     date=$(echo "$(date '+%b%d')" | awk '{print tolower($1)}')
@@ -67,10 +41,24 @@ create_the_scripts_directory_path()
     echo "$1/git/scripts"
 }
 
+configure()
+{
+    if [[ ! -d $boot_jdk_directory_path || \
+	  ! -d $freetype_include_directory_path || \
+	  ! -d $freetype_lib_directory_path ]]
+    then
+	scripts_directory_path=$(create_the_scripts_directory_path $1)
+	bash $scripts_directory_path/install_openj9-openjdk-jdk8_dependencies.sh
+	boot_jdk_directory_path=$1/jdk8u312-b07
+	freetype_include_directory_path=/usr/include/freetype2
+	freetype_lib_directory_path=/usr/lib/x86_64-linux-gnu
+    fi
+
+    bash configure --with-boot-jdk=$boot_jdk_directory_path --with-freetype-include=$freetype_include_directory_path --with-freetype-lib=$freetype_lib_directory_path
+}
+
 INPUT="$@"
 DIRECTORY=$PWD
-obtain_the_directory_paths $INPUT
-initialize_the_directory_paths_that_are_absent $DIRECTORY
 build_directory="$DIRECTORY/openj9-openjdk-jdk8"
 if [ -d $build_directory ]; then
     echo "$build_directory exists"
@@ -80,5 +68,6 @@ fi
 git clone https://github.com/ibmruntimes/openj9-openjdk-jdk8.git 
 cd $build_directory
 bash get_source.sh 
-bash configure --with-boot-jdk=$boot_jdk_directory_path --with-freetype-include=$freetype_include_directory_path --with-freetype-lib=$freetype_lib_directory_path
+initialize_the_directory_paths $INPUT
+configure $DIRECTORY
 make all
