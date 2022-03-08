@@ -1,5 +1,7 @@
 #!/bin/sh
 
+echo "openj9_cherry-pick.sh"
+
 install_wget()
 {
     OS=$(uname -s)
