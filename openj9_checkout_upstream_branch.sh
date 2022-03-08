@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "openj9_checkout_upstream_branch.sh"
+
 if [ "$#" -ne 1 ]
 then
     echo "upstream branch absent"
