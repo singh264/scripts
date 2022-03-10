@@ -2,8 +2,23 @@
 
 echo "test_openj9-openjdk-jdk8.sh"
 
+create_the_scripts_directory_path()
+{
+    mkdir -p $1/git
+    cd $1/git
+    git clone https://github.com/singh264/scripts.git
+    cd $1
+    echo "$1/git/scripts"
+}
+
 get_the_images_directory_path()
 {
+    if [ ! -d $1/openj9-openjdk-jdk8" ]
+    then
+	scripts_directory_path=$(create_the_scripts_directory_path $1)
+	bash $scripts_directory_path/build_openj9-openjdk-jdk8.sh
+    fi
+
     if [ -d "$1/openj9-openjdk-jdk8/build/linux-ppc64le-normal-server-release/images" ]
     then
 	echo "$1/openj9-openjdk-jdk8/build/linux-ppc64le-normal-server-release/images"
