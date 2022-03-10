@@ -13,7 +13,7 @@ create_the_scripts_directory_path()
 
 get_the_images_directory_path()
 {
-    if [ ! -d $1/openj9-openjdk-jdk8" ]
+    if [ ! -d "$1/openj9-openjdk-jdk8" ]
     then
 	scripts_directory_path=$(create_the_scripts_directory_path $1)
 	bash $scripts_directory_path/build_openj9-openjdk-jdk8.sh
