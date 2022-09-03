@@ -56,6 +56,7 @@ obtain_the_attributes_of_the_url()
 	    the_name_of_the_attribute=$key
 	fi
 
+	echo $value
 	attribute="$attribute $value"
 
 	if [[ $value == *"\""* ]]
@@ -75,6 +76,10 @@ obtain_the_attributes_of_the_url()
 	        initialize_the_attribute_of_the_url $the_name_of_the_attribute $attribute
 	        attribute=""
 	    fi
+	elif [[ $the_name_of_the_attribute == "--the_url" ]]
+	then
+	    initialize_the_attribute_of_the_url $the_name_of_the_attribute $attribute
+	    attribute=""
 	fi
     done
 }
