@@ -144,18 +144,12 @@ generate_the_output_of_the_afl-cov_command_that_is_run_with_the_gnu_coreutils_pr
 
 INPUT="$@"
 initialize_the_gnu_coreutils_program $INPUT
-if [ -z "$gnu_coreutils_program" ]
+gnu_coreutils_programs=( "base64" "md5sum" "uniq" "who" )
+if [[ -z "$gnu_coreutils_program" || ! " ${gnu_coreutils_programs[@]} " =~ " $gnu_coreutils_program " ]]
 then
     echo "The gnu coreutils program could be absent. Provide the gnu coreutils program that could be base64, md5sum, uniq and who."
     exit
 fi
-
-gnu_coreutils_programs=( "base64" "md5sum" "uniq" "who" )
-if [[ ! " ${gnu_coreutils_programs[@]} " =~ " $gnu_coreutils_program " ]]
-then
-    echo "Provide the gnu coreutils program that could be base64, md5sum, uniq and who."
-    exit
-fi 
 
 build_afl
 build_the_gnu_coreutils_program $gnu_coreutils_program
