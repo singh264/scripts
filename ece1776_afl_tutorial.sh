@@ -43,13 +43,6 @@ build_the_gnu_coreutils_program()
    make install
 }
 
-#run_the_gnu_coreutils_program_validate_script()
-#{
-#   cd /home/user/lava_corpus/LAVA-M/$1/
-#   bash /home/user/lava_corpus/LAVA-M/$1/validate.sh
-#   cd /home/user/lava_corpus/LAVA-M/$1/coreutils-8.24-lava-safe
-#}
-
 indicate_that_the_AFL_build_of_the_gnu_coreutils_program_includes_a_vulnerability()
 {
    /home/user/lava_corpus/LAVA-M/$1/coreutils-8.24-lava-safe/lava-install/bin/$1 -d /home/user/lava_corpus/LAVA-M/$1/inputs/utmp-fuzzed-1.b64
