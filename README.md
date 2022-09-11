@@ -11,3 +11,4 @@
 * I think openj9_checkout_upstream_branch.sh creates a new remote branch from the upstream repository.
 * I think openj9_cherry-pick.sh applies the changes of a commit to the openj9 repository.
 * I think test_openj9-openjdk-jdk8.sh tests OpenJDK Version 8 with OpenJ9.
+* I think ece1776_afl_tutorial.sh includes the steps of the ECE1776 AFL tutorial word document that could be summarized in the document that is at https://docs.google.com/document/d/1nPFuASi_wxQYYU6fBlJ355-kwV6XRcScrsJ9s2WlM3A/edit?usp=sharing.
