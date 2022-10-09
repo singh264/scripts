@@ -26,7 +26,7 @@ build_afl()
 {
     cd $directory_path
     sudo apt-get install -y git
-    git clone https://github.com/google/AFL.git
+    git clone https://github.com/singh264/AFL.git
     cd $directory_path/AFL
     sudo apt-get -y update
     sudo apt-get -y install make
