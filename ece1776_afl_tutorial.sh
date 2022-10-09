@@ -2,6 +2,8 @@
 
 echo "ece1776_afl_tutorial.sh"
 
+gnu_coreutils_program=""
+
 initialize_the_gnu_coreutils_program()
 {
     for var in "$@"
@@ -33,26 +35,26 @@ build_the_gnu_coreutils_program()
    sudo apt-get install -y wget
    wget http://panda.moyix.net/~moyix/lava_corpus.tar.xz
    tar -xvf /home/user/lava_corpus.tar.xz
-   cd /home/user/lava_corpus/LAVA-M/$1/coreutils-8.24-lava-safe
+   cd /home/user/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe
    sudo apt-get install -y libacl1-dev
    sed -i 's/IO_ftrylockfile/IO_EOF_SEEN/' lib/*.c
    echo "#define _IO_IN_BACKUP 0x100" >> lib/stdio-impl.h
    sed -i '1s/^/#include <sys\/sysmacros.h>\n/' lib/mountlist.c
-   CC=/usr/local/bin/afl-gcc CXX=/usr/local/bin/afl-g++ /home/user/lava_corpus/LAVA-M/$1/coreutils-8.24-lava-safe/configure --prefix=`pwd`/lava-install LIBS="-lacl"
+   CC=/usr/local/bin/afl-gcc CXX=/usr/local/bin/afl-g++ /home/user/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe/configure --prefix=`pwd`/lava-install LIBS="-lacl"
    make clean all -j4
    make install
 }
 
 indicate_that_the_AFL_build_of_the_gnu_coreutils_program_includes_a_vulnerability()
 {
-   /home/user/lava_corpus/LAVA-M/$1/coreutils-8.24-lava-safe/lava-install/bin/$1 -d /home/user/lava_corpus/LAVA-M/$1/inputs/utmp-fuzzed-1.b64
+   /home/user/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe/lava-install/bin/$gnu_coreutils_program -d /home/user/lava_corpus/LAVA-M/$gnu_coreutils_program/inputs/utmp-fuzzed-1.b64
 }
 
 generate_the_output_of_the_afl-fuzz_command_with_the_gnu_coreutils_program()
 {
-   cd /home/user/lava_corpus/LAVA-M/$1/
-   mkdir /home/user/lava_corpus/LAVA-M/$1/outputs
-   /usr/local/bin/afl-fuzz -i /home/user/lava_corpus/LAVA-M/$1/fuzzer_input/ -o /home/user/lava_corpus/LAVA-M/$1/outputs/ -- /home/user/lava_corpus/LAVA-M/$1/coreutils-8.24-lava-safe/lava-install/bin/$1 -d
+   cd /home/user/lava_corpus/LAVA-M/$gnu_coreutils_program/
+   mkdir /home/user/lava_corpus/LAVA-M/$gnu_coreutils_program/outputs
+   /usr/local/bin/afl-fuzz -i /home/user/lava_corpus/LAVA-M/$gnu_coreutils_program/fuzzer_input/ -o /home/user/lava_corpus/LAVA-M/$gnu_coreutils_program/outputs/ -- /home/user/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe/lava-install/bin/$gnu_coreutils_program -d
 }
 
 install_the_dependencies_to_create_the_AFL_coverage_of_the_gnu_coreutils_program()
@@ -101,19 +103,19 @@ create_the_AFL_coverage_of_the_gnu_coreutils_program()
 {
    cd /home/user
    git clone https://github.com/mrash/afl-cov.git
-   cd /home/user/lava_corpus/LAVA-M/$1/
-   cp -r /home/user/lava_corpus/LAVA-M/$1/coreutils-8.24-lava-safe/ /home/user/lava_corpus/LAVA-M/$1/coreutils-8.24-lava-safe-gcov
-   cd /home/user/lava_corpus/LAVA-M/$1/coreutils-8.24-lava-safe-gcov
+   cd /home/user/lava_corpus/LAVA-M/$gnu_coreutils_program/
+   cp -r /home/user/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe/ /home/user/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe-gcov
+   cd /home/user/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe-gcov
    make clean distclean
-   CFLAGS="-fprofile-arcs -ftest-coverage" /home/user/lava_corpus/LAVA-M/$1/coreutils-8.24-lava-safe-gcov/configure --prefix=`pwd`/lava-install  LIBS="-lacl"
+   CFLAGS="-fprofile-arcs -ftest-coverage" /home/user/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe-gcov/configure --prefix=`pwd`/lava-install  LIBS="-lacl"
    make
    make install
 }
 
 generate_the_output_of_the_afl-cov_command_that_is_run_with_the_gnu_coreutils_program()
 {
-   cd /home/user/lava_corpus/LAVA-M/$1/coreutils-8.24-lava-safe-gcov/lava-install/bin
-   /home/user/afl-cov/afl-cov -d /home/user/lava_corpus/LAVA-M/$1/outputs/ --coverage-cmd "/bin/cat AFL_FILE | /home/user/lava_corpus/LAVA-M/$1/coreutils-8.24-lava-safe-gcov/lava-install/bin/$1 -d" --code-dir /home/user/lava_corpus/LAVA-M/$1/coreutils-8.24-lava-safe-gcov/src
+   cd /home/user/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe-gcov/lava-install/bin
+   /home/user/afl-cov/afl-cov -d /home/user/lava_corpus/LAVA-M/$gnu_coreutils_program/outputs/ --coverage-cmd "/bin/cat AFL_FILE | /home/user/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe-gcov/lava-install/bin/$gnu_coreutils_program -d" --code-dir /home/user/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe-gcov/src
 }
 
 INPUT="$@"
@@ -126,9 +128,9 @@ then
 fi
 
 build_afl
-build_the_gnu_coreutils_program $gnu_coreutils_program
-indicate_that_the_AFL_build_of_the_gnu_coreutils_program_includes_a_vulnerability $gnu_coreutils_program
-generate_the_output_of_the_afl-fuzz_command_with_the_gnu_coreutils_program $gnu_coreutils_program
+build_the_gnu_coreutils_program
+indicate_that_the_AFL_build_of_the_gnu_coreutils_program_includes_a_vulnerability
+generate_the_output_of_the_afl-fuzz_command_with_the_gnu_coreutils_program
 install_the_dependencies_to_create_the_AFL_coverage_of_the_gnu_coreutils_program
-create_the_AFL_coverage_of_the_gnu_coreutils_program $gnu_coreutils_program
-generate_the_output_of_the_afl-cov_command_that_is_run_with_the_gnu_coreutils_program $gnu_coreutils_program
+create_the_AFL_coverage_of_the_gnu_coreutils_program
+generate_the_output_of_the_afl-cov_command_that_is_run_with_the_gnu_coreutils_program
