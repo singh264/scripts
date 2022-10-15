@@ -131,7 +131,7 @@ then
     echo "Provide the gnu coreutils program that could be base64, md5sum, uniq and who."
     exit
 fi
-if [ -z "$directory_path" ]
+if [[ -z "$directory_path" || ! -d "$directory_path" ]]
 then
     echo "Provide the directory path."
     exit
