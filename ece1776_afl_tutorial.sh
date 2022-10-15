@@ -4,6 +4,7 @@ echo "ece1776_afl_tutorial.sh"
 
 gnu_coreutils_program=""
 directory_path=""
+map_size_pow2=""
 
 initialize_the_variables()
 {
@@ -18,6 +19,9 @@ initialize_the_variables()
         elif [ $key = '--directory_path' ]
 	then
 	    directory_path=$value
+	elif [ $key = '--map_size_pow2' ]
+	then
+	    map_size_pow2=$value
         fi
     done
 }
@@ -27,6 +31,12 @@ build_afl()
     cd $directory_path
     sudo apt-get install -y git
     git clone https://github.com/singh264/AFL.git
+
+    if [ ! -z "$map_size_pow2" ]
+    then
+	sed -i'' -e "s/#define MAP_SIZE_POW2 .*/#define MAP_SIZE_POW2 $map_size_pow2/g" $directory_path/AFL/config.h
+    fi
+
     cd $directory_path/AFL
     sudo apt-get -y update
     sudo apt-get -y install make
