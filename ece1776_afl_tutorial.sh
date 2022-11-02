@@ -5,6 +5,7 @@ echo "ece1776_afl_tutorial.sh"
 gnu_coreutils_program=""
 directory_path=""
 map_size_pow2=""
+llvm_mode=""
 
 initialize_the_variables()
 {
@@ -22,6 +23,9 @@ initialize_the_variables()
 	elif [ $key = '--map_size_pow2' ]
 	then
 	    map_size_pow2=$value
+	elif [ $key = '--llvm_mode' ]
+	then
+	    llvm_mode=$value
         fi
     done
 }
@@ -32,6 +36,11 @@ build_afl()
     sudo apt-get install -y git
     git clone https://github.com/singh264/AFL.git
 
+    if [ ! -z "$gnu_coreutils_program" ]
+    then
+	sed -i'' -e "s/#define GNU_COREUTILS_PROGRAM .*/#define GNU_COREUTILS_PROGRAM \"$gnu_coreutils_program\"/g" $directory_path/AFL/config.h
+    fi
+
     if [ ! -z "$map_size_pow2" ]
     then
 	sed -i'' -e "s/#define MAP_SIZE_POW2 .*/#define MAP_SIZE_POW2 $map_size_pow2/g" $directory_path/AFL/config.h
@@ -41,7 +50,21 @@ build_afl()
     sudo apt-get -y update
     sudo apt-get -y install make
     sudo apt-get -y install gcc
-    sudo make install
+
+    if [ -z "$llvm_mode" ]
+    then
+       sudo make install
+    else
+       cd /home/user
+       wget https://releases.llvm.org/8.0.0/clang+llvm-8.0.0-x86_64-linux-gnu-ubuntu-18.04.tar.xz
+       tar xvf /home/user/clang+llvm-8.0.0-x86_64-linux-gnu-ubuntu-18.04.tar.xz
+       export PATH="/home/user/clang+llvm-8.0.0-x86_64-linux-gnu-ubuntu-18.04/bin:$PATH"
+       sudo apt -y install libncurses5
+       sudo apt -y install clang
+       cd $directory_path/AFL
+       sudo gmake clean
+       sudo gmake && gmake -C llvm_mode
+    fi
 }
 
 build_the_gnu_coreutils_program()
@@ -55,7 +78,12 @@ build_the_gnu_coreutils_program()
    sed -i 's/IO_ftrylockfile/IO_EOF_SEEN/' lib/*.c
    echo "#define _IO_IN_BACKUP 0x100" >> lib/stdio-impl.h
    sed -i '1s/^/#include <sys\/sysmacros.h>\n/' lib/mountlist.c
-   CC=/usr/local/bin/afl-gcc CXX=/usr/local/bin/afl-g++ $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe/configure --prefix=`pwd`/lava-install LIBS="-lacl"
+   if [ -z "$llvm_mode" ]
+   then
+      CC=/usr/local/bin/afl-gcc CXX=/usr/local/bin/afl-g++ $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe/configure --prefix=`pwd`/lava-install LIBS="-lacl"
+   else
+      CC=$directory_path/AFL/afl-clang-fast CXX=$directory_path/AFL/afl-clang-fast++ $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe/configure --prefix=`pwd`/lava-install LIBS="-lacl"
+   fi
    make clean all -j4
    make install
 }
@@ -69,7 +97,12 @@ generate_the_output_of_the_afl-fuzz_command_with_the_gnu_coreutils_program()
 {
    cd $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program
    mkdir $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/outputs
-   /usr/local/bin/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/outputs/ -- $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe/lava-install/bin/$gnu_coreutils_program -d
+   if [ -z "$llvm_mode" ]
+   then
+      /usr/local/bin/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/outputs/ -- $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe/lava-install/bin/$gnu_coreutils_program -d
+   else
+      $directory_path/AFL/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/outputs/ -- $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe/lava-install/bin/$gnu_coreutils_program -d
+   fi
 }
 
 install_the_dependencies_to_create_the_AFL_coverage_of_the_gnu_coreutils_program()
