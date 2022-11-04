@@ -34,7 +34,7 @@ build_afl()
 {
     cd $directory_path
     sudo apt-get install -y git
-    git clone https://github.com/singh264/AFL.git
+    git clone --single-branch --branch ece1776_afl_tutorial_with_the_llvm_mode https://github.com/singh264/AFL.git
 
     if [ ! -z "$gnu_coreutils_program" ]
     then
