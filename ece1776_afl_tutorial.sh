@@ -2,7 +2,7 @@
 
 echo "ece1776_afl_tutorial.sh"
 
-gnu_coreutils_program=""
+input_program=""
 directory_path=""
 map_size_pow2=""
 llvm_mode=""
@@ -14,9 +14,9 @@ initialize_the_variables()
         key=$(echo $var | cut -d'=' -f1)
         value=$(echo $var | cut -d'=' -f2)
 
-        if [ $key = '--gnu_coreutils_program' ]
+        if [ $key = '--input_program' ]
         then
-           gnu_coreutils_program=$value
+           input_program=$value
         elif [ $key = '--directory_path' ]
 	then
 	    directory_path=$value
@@ -30,15 +30,35 @@ initialize_the_variables()
     done
 }
 
+is_the_input_program_the_gnu_coreutils_program()
+{
+   gnu_coreutils_programs=( "base64" "md5sum" "uniq" "who" )
+   if [[ ! " ${gnu_coreutils_programs[@]} " =~ " $input_program " ]]
+   then
+      return 1
+   fi
+   return 0
+}
+
+is_the_input_program_the_gnu_binutils_program()
+{
+   gnu_binutils_programs=( "readelf" "addr2line" "ar" )
+   if [[ ! " ${gnu_binutils_programs[@]} " =~ " $input_program " ]]
+   then
+      return 1
+   fi
+   return 0
+}
+
 build_afl() 
 {
     cd $directory_path
     sudo apt-get install -y git
     git clone https://github.com/singh264/AFL.git
 
-    if [ ! -z "$gnu_coreutils_program" ]
+    if [ ! -z "$input_program" ]
     then
-	sed -i'' -e "s/#define GNU_COREUTILS_PROGRAM .*/#define GNU_COREUTILS_PROGRAM \"$gnu_coreutils_program\"/g" $directory_path/AFL/config.h
+	sed -i'' -e "s/#define INPUT_PROGRAM .*/#define INPUT_PROGRAM \"$input_program\"/g" $directory_path/AFL/config.h
     fi
 
     if [ ! -z "$map_size_pow2" ]
@@ -73,35 +93,93 @@ build_the_gnu_coreutils_program()
    sudo apt-get install -y wget
    wget http://panda.moyix.net/~moyix/lava_corpus.tar.xz
    tar -xvf $directory_path/lava_corpus.tar.xz
-   cd $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe
+   cd $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe
    sudo apt-get install -y libacl1-dev
    sed -i 's/IO_ftrylockfile/IO_EOF_SEEN/' lib/*.c
    echo "#define _IO_IN_BACKUP 0x100" >> lib/stdio-impl.h
    sed -i '1s/^/#include <sys\/sysmacros.h>\n/' lib/mountlist.c
    if [ -z "$llvm_mode" ]
    then
-      CC=/usr/local/bin/afl-gcc CXX=/usr/local/bin/afl-g++ $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe/configure --prefix=`pwd`/lava-install LIBS="-lacl"
+      CC=/usr/local/bin/afl-gcc CXX=/usr/local/bin/afl-g++ $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/configure --prefix=`pwd`/lava-install LIBS="-lacl"
    else
-      CC=$directory_path/AFL/afl-clang-fast CXX=$directory_path/AFL/afl-clang-fast++ $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe/configure --prefix=`pwd`/lava-install LIBS="-lacl"
+      CC=$directory_path/AFL/afl-clang-fast CXX=$directory_path/AFL/afl-clang-fast++ $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/configure --prefix=`pwd`/lava-install LIBS="-lacl"
    fi
    make clean all -j4
    make install
 }
 
+build_the_gnu_binutils_program()
+{
+   cd $directory_path
+   sudo apt-get -y install dpkg-dev
+   sudo apt-get source binutils
+   sudo apt-get -y install texinfo
+   sudo apt-get -y install flex
+   wget http://ftp.gnu.org/gnu/m4/m4-1.4.13.tar.gz
+   tar -xvf $directory_path/m4-1.4.13.tar.gz
+   cd $directory_path/m4-1.4.13
+   $directory_path/m4-1.4.13/configure
+   sed -i 's/IO_ftrylockfile/IO_EOF_SEEN/' lib/*.c
+   echo "#define _IO_IN_BACKUP 0x100" >> lib/stdio-impl.h
+   sudo make install
+   cd $directory_path/binutils-2.35.2/
+   sudo CC=/usr/local/bin/afl-gcc $directory_path/binutils-2.35.2/configure
+   sudo make
+}
+
+build_the_input_program()
+{
+   if is_the_input_program_the_gnu_coreutils_program
+   then
+      build_the_gnu_coreutils_program
+   elif is_the_input_program_the_gnu_binutils_program
+   then
+      build_the_gnu_binutils_program
+   fi
+}
+
 indicate_that_the_AFL_build_of_the_gnu_coreutils_program_includes_a_vulnerability()
 {
-   $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe/lava-install/bin/$gnu_coreutils_program -d $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/inputs/utmp-fuzzed-1.b64
+   $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program -d $directory_path/lava_corpus/LAVA-M/$input_program/inputs/utmp-fuzzed-1.b64
+}
+
+indicate_that_the_AFL_build_of_the_input_program_includes_a_vulnerability()
+{
+   if is_the_input_program_the_gnu_coreutils_program
+   then
+      indicate_that_the_AFL_build_of_the_gnu_coreutils_program_includes_a_vulnerability
+   fi
 }
 
 generate_the_output_of_the_afl-fuzz_command_with_the_gnu_coreutils_program()
 {
-   cd $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program
-   mkdir $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/outputs
+   cd $directory_path/lava_corpus/LAVA-M/$input_program
+   mkdir $directory_path/lava_corpus/LAVA-M/$input_program/outputs
    if [ -z "$llvm_mode" ]
    then
-      /usr/local/bin/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/outputs/ -- $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe/lava-install/bin/$gnu_coreutils_program -d
+      /usr/local/bin/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$input_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$input_program/outputs/ -- $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program -d
    else
-      $directory_path/AFL/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/outputs/ -- $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe/lava-install/bin/$gnu_coreutils_program -d
+      $directory_path/AFL/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$input_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$input_program/outputs/ -- $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program -d
+   fi
+}
+
+generate_the_output_of_the_afl-fuzz_command_with_the_gnu_binutils_program()
+{
+   cd $directory_path
+   mkdir $directory_path/input
+   cp /bin/ps $directory_path/input
+   mkdir $directory_path/output
+   /usr/local/bin/afl-fuzz -i $directory_path/input -o $directory_path/output $directory_path/binutils-2.35.2/binutils/$input_program -a @@
+}
+
+generate_the_output_of_the_afl-fuzz_command_with_the_input_program()
+{
+   if is_the_input_program_the_gnu_coreutils_program
+   then
+      generate_the_output_of_the_afl-fuzz_command_with_the_gnu_coreutils_program
+   elif is_the_input_program_the_gnu_binutils_program
+   then
+      generate_the_output_of_the_afl-fuzz_command_with_the_gnu_binutils_program
    fi
 }
 
@@ -147,33 +225,96 @@ install_the_dependencies_to_create_the_AFL_coverage_of_the_gnu_coreutils_program
    sudo apt-get install -y lcov
 }
 
+install_the_dependencies_to_create_the_AFL_coverage_of_the_gnu_binutils_program()
+{
+   cd $directory_path
+   sudo apt-get install -y python2
+   sudo apt-get install -y lcov
+}
+
+install_the_dependencies_to_create_the_AFL_coverage_of_the_input_program()
+{
+   if is_the_input_program_the_gnu_coreutils_program
+   then
+      install_the_dependencies_to_create_the_AFL_coverage_of_the_gnu_coreutils_program
+   elif is_the_input_program_the_gnu_binutils_program
+   then
+      install_the_dependencies_to_create_the_AFL_coverage_of_the_gnu_binutils_program
+   fi
+}
+
 create_the_AFL_coverage_of_the_gnu_coreutils_program()
 {
    cd $directory_path
    git clone https://github.com/mrash/afl-cov.git
-   cd $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program
-   cp -r $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe-gcov
-   cd $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe-gcov
+   cd $directory_path/lava_corpus/LAVA-M/$input_program
+   cp -r $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov
+   cd $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov
    make clean distclean
-   CFLAGS="-fprofile-arcs -ftest-coverage" $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe-gcov/configure --prefix=`pwd`/lava-install  LIBS="-lacl"
+   CFLAGS="-fprofile-arcs -ftest-coverage" $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov/configure --prefix=`pwd`/lava-install  LIBS="-lacl"
    make
    make install
 }
 
+create_the_AFL_coverage_of_the_gnu_binutils_program()
+{
+   cd $directory_path
+   git clone https://github.com/mrash/afl-cov.git
+   mkdir $directory_path/gcov
+   cd $directory_path/gcov
+   sudo apt-get source binutils
+   cd $directory_path/gcov/binutils-2.35.2/
+   sudo CFLAGS="-g -O2 -fprofile-arcs -ftest-coverage" CC=/usr/local/bin/afl-gcc $directory_path/gcov/binutils-2.35.2/configure
+   sudo make
+}
+
+create_the_AFL_coverage_of_the_input_program()
+{
+   if is_the_input_program_the_gnu_coreutils_program
+   then
+      create_the_AFL_coverage_of_the_gnu_coreutils_program
+   elif is_the_input_program_the_gnu_binutils_program
+   then
+      create_the_AFL_coverage_of_the_gnu_binutils_program
+   fi
+}
+
 generate_the_output_of_the_afl-cov_command_that_is_run_with_the_gnu_coreutils_program()
 {
-   cd $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe-gcov/lava-install/bin
-   $directory_path/afl-cov/afl-cov -d $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/outputs --coverage-cmd "/bin/cat AFL_FILE | $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe-gcov/lava-install/bin/$gnu_coreutils_program -d" --code-dir $directory_path/lava_corpus/LAVA-M/$gnu_coreutils_program/coreutils-8.24-lava-safe-gcov/src
+   cd $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov/lava-install/bin
+   $directory_path/afl-cov/afl-cov -d $directory_path/lava_corpus/LAVA-M/$input_program/outputs --coverage-cmd "/bin/cat AFL_FILE | $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov/lava-install/bin/$input_program -d" --code-dir $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov/src
+}
+
+generate_the_output_of_the_afl-cov_command_that_is_run_with_the_gnu_binutils_program()
+{
+   sudo $directory_path/afl-cov/afl-cov -d $directory_path/output --coverage-cmd "/bin/cat AFL_FILE | $directory_path/gcov/binutils-2.35.2/binutils/$input_program -d" --code-dir $directory_path/gcov/binutils-2.35.2/binutils
+}
+
+generate_the_output_of_the_afl-cov_command_that_is_run_with_the_input_program()
+{
+   if is_the_input_program_the_gnu_coreutils_program
+   then
+      generate_the_output_of_the_afl-cov_command_that_is_run_with_the_gnu_coreutils_program
+   elif is_the_input_program_the_gnu_binutils_program
+   then
+      generate_the_output_of_the_afl-cov_command_that_is_run_with_the_gnu_binutils_program
+   fi
 }
 
 INPUT="$@"
 initialize_the_variables $INPUT
-gnu_coreutils_programs=( "base64" "md5sum" "uniq" "who" )
-if [[ -z "$gnu_coreutils_program" || ! " ${gnu_coreutils_programs[@]} " =~ " $gnu_coreutils_program " ]]
+if [ -z $input_program ] || ( ! is_the_input_program_the_gnu_binutils_program && ! is_the_input_program_the_gnu_coreutils_program )
 then
-    echo "Provide the gnu coreutils program that could be base64, md5sum, uniq and who."
+    echo "Provide the input program that could be base64, md5sum, uniq, who, readelf, addr2line and ar."
     exit
 fi
+
+if [ ! -z $llvm_mode ] && is_the_input_program_the_gnu_binutils_program
+then
+   echo "I think the script could be completed with the llvm mode and the gnu binutils program in the future."
+   exit
+fi
+
 if [[ -z "$directory_path" || ! -d "$directory_path" ]]
 then
     echo "Provide the directory path."
@@ -181,9 +322,9 @@ then
 fi
 
 build_afl
-build_the_gnu_coreutils_program
-indicate_that_the_AFL_build_of_the_gnu_coreutils_program_includes_a_vulnerability
-generate_the_output_of_the_afl-fuzz_command_with_the_gnu_coreutils_program
-install_the_dependencies_to_create_the_AFL_coverage_of_the_gnu_coreutils_program
-create_the_AFL_coverage_of_the_gnu_coreutils_program
-generate_the_output_of_the_afl-cov_command_that_is_run_with_the_gnu_coreutils_program
+build_the_input_program
+indicate_that_the_AFL_build_of_the_input_program_includes_a_vulnerability
+generate_the_output_of_the_afl-fuzz_command_with_the_input_program
+install_the_dependencies_to_create_the_AFL_coverage_of_the_input_program
+create_the_AFL_coverage_of_the_input_program
+generate_the_output_of_the_afl-cov_command_that_is_run_with_the_input_program
