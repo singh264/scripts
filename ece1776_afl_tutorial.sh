@@ -66,6 +66,13 @@ build_afl()
 	sed -i'' -e "s/#define MAP_SIZE_POW2 .*/#define MAP_SIZE_POW2 $map_size_pow2/g" $directory_path/AFL/config.h
     fi
 
+    if [ ! -z "$llvm_mode" ]
+    then
+	sed -i'' -e "s/#define LLVM_MODE .*/#define LLVM_MODE 1/g" $directory_path/AFL/config.h
+    else
+	sed -i'' -e "s/#define LLVM_MODE .*/#define LLVM_MODE 0/g" $directory_path/AFL/config.h
+    fi
+
     cd $directory_path/AFL
     sudo apt-get -y update
     sudo apt-get -y install make
