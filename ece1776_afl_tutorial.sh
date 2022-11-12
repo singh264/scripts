@@ -82,10 +82,10 @@ build_afl()
     then
        sudo make install
     else
-       cd /home/user
+       cd $directory_path
        wget https://releases.llvm.org/8.0.0/clang+llvm-8.0.0-x86_64-linux-gnu-ubuntu-18.04.tar.xz
-       tar xvf /home/user/clang+llvm-8.0.0-x86_64-linux-gnu-ubuntu-18.04.tar.xz
-       export PATH="/home/user/clang+llvm-8.0.0-x86_64-linux-gnu-ubuntu-18.04/bin:$PATH"
+       tar xvf $directory_path/clang+llvm-8.0.0-x86_64-linux-gnu-ubuntu-18.04.tar.xz
+       export PATH="$directory_path/clang+llvm-8.0.0-x86_64-linux-gnu-ubuntu-18.04/bin:$PATH"
        sudo apt -y install libncurses5
        sudo apt -y install clang
        cd $directory_path/AFL
@@ -130,8 +130,14 @@ build_the_gnu_binutils_program()
    echo "#define _IO_IN_BACKUP 0x100" >> lib/stdio-impl.h
    sudo make install
    cd $directory_path/binutils-2.35.2/
-   sudo CC=/usr/local/bin/afl-gcc $directory_path/binutils-2.35.2/configure
-   sudo make
+   if [ -z "$llvm_mode" ]
+   then
+      sudo CC=/usr/local/bin/afl-gcc $directory_path/binutils-2.35.2/configure
+      sudo make
+   else
+      sudo CC=$directory_path/AFL/afl-clang-fast PATH=$directory_path/clang+llvm-8.0.0-x86_64-linux-gnu-ubuntu-18.04/bin:$PATH $directory_path/binutils-2.35.2/configure
+      sudo PATH=$directory_path/clang+llvm-8.0.0-x86_64-linux-gnu-ubuntu-18.04/bin:$PATH make
+   fi
 }
 
 build_the_input_program()
@@ -176,7 +182,12 @@ generate_the_output_of_the_afl-fuzz_command_with_the_gnu_binutils_program()
    mkdir $directory_path/input
    cp /bin/ps $directory_path/input
    mkdir $directory_path/output
-   /usr/local/bin/afl-fuzz -i $directory_path/input -o $directory_path/output $directory_path/binutils-2.35.2/binutils/$input_program -a @@
+   if [ -z "$llvm_mode" ]
+   then
+      /usr/local/bin/afl-fuzz -i $directory_path/input -o $directory_path/output $directory_path/binutils-2.35.2/binutils/$input_program -a @@
+   else
+      $directory_path/AFL/afl-fuzz -i $directory_path/input -o $directory_path/output $directory_path/binutils-2.35.2/binutils/$input_program -a @@
+   fi
 }
 
 generate_the_output_of_the_afl-fuzz_command_with_the_input_program()
@@ -271,7 +282,12 @@ create_the_AFL_coverage_of_the_gnu_binutils_program()
    cd $directory_path/gcov
    sudo apt-get source binutils
    cd $directory_path/gcov/binutils-2.35.2/
-   sudo CFLAGS="-g -O2 -fprofile-arcs -ftest-coverage" CC=/usr/local/bin/afl-gcc $directory_path/gcov/binutils-2.35.2/configure
+   if [ -z "$llvm_mode" ]
+   then
+      sudo CFLAGS="-g -O2 -fprofile-arcs -ftest-coverage" CC=/usr/local/bin/afl-gcc $directory_path/gcov/binutils-2.35.2/configure
+   else
+      sudo CC=$directory_path/AFL/afl-gcc CFLAGS="-g -O2 -fprofile-arcs -ftest-coverage" $directory_path/gcov/binutils-2.35.2/configure
+   fi
    sudo make
 }
 
@@ -315,13 +331,6 @@ then
     echo "Provide the input program that could be base64, md5sum, uniq, who, readelf, addr2line and ar."
     exit
 fi
-
-if [ ! -z $llvm_mode ] && is_the_input_program_the_gnu_binutils_program
-then
-   echo "I think the script could be completed with the llvm mode and the gnu binutils program in the future."
-   exit
-fi
-
 if [[ -z "$directory_path" || ! -d "$directory_path" ]]
 then
     echo "Provide the directory path."
