@@ -46,7 +46,7 @@ is_the_input_program_the_gnu_coreutils_program()
 
 is_the_input_program_the_gnu_binutils_program()
 {
-   gnu_binutils_programs=( "readelf" "addr2line" "ar" )
+   gnu_binutils_programs=( "readelf" "addr2line" "ar" "nm-new" "objdump" )
    if [[ ! " ${gnu_binutils_programs[@]} " =~ " $input_program " ]]
    then
       return 1
