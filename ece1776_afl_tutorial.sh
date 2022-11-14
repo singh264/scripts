@@ -6,6 +6,7 @@ input_program=""
 directory_path=""
 map_size_pow2=""
 llvm_mode=""
+max_dict_file=""
 
 initialize_the_variables()
 {
@@ -26,6 +27,9 @@ initialize_the_variables()
 	elif [ $key = '--llvm_mode' ]
 	then
 	    llvm_mode=$value
+	elif [ $key = '--max_dict_file' ]
+	then
+	    max_dict_file=$value
         fi
     done
 }
@@ -71,6 +75,11 @@ build_afl()
 	sed -i'' -e "s/#define LLVM_MODE .*/#define LLVM_MODE 1/g" $directory_path/AFL/config.h
     else
 	sed -i'' -e "s/#define LLVM_MODE .*/#define LLVM_MODE 0/g" $directory_path/AFL/config.h
+    fi
+
+    if [ ! -z "$max_dict_file" ]
+    then
+       sed -i'' -e "s/#define MAX_DICT_FILE .*/#define MAX_DICT_FILE $max_dict_file/g" $directory_path/AFL/config.h
     fi
 
     cd $directory_path/AFL
@@ -164,15 +173,46 @@ indicate_that_the_AFL_build_of_the_input_program_includes_a_vulnerability()
    fi
 }
 
+obtain_the_testcases_of_the_gnu_coreutils_program()
+{
+   cd $directory_path
+   wget https://gist.githubusercontent.com/moyix/c042090d9beb6b1a7cb39f6162cd6128/raw/3c4571c2851cfbdb296a9ba5493c91ac7bacb69c/make_testcases.sh
+   mkdir $directory_path/testcases
+   sudo apt-get -y install python2
+   sed -i 's/python /python2 /g' $directory_path/make_testcases.sh
+   bash $directory_path/make_testcases.sh $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program
+}
+
+obtain_the_testcases_of_the_gnu_binutils_program()
+{
+   cd $directory_path
+   wget https://gist.githubusercontent.com/moyix/c042090d9beb6b1a7cb39f6162cd6128/raw/3c4571c2851cfbdb296a9ba5493c91ac7bacb69c/make_testcases.sh
+   mkdir $directory_path/testcases
+   sudo apt-get -y install python2
+   sed -i 's/python /python2 /g' $directory_path/make_testcases.sh
+   bash $directory_path/make_testcases.sh $directory_path/binutils-2.35.2/binutils/$input_program
+}
+
+obtain_the_testcases_of_the_input_program()
+{
+   if is_the_input_program_the_gnu_coreutils_program
+   then
+      obtain_the_testcases_of_the_gnu_coreutils_program
+   elif is_the_input_program_the_gnu_binutils_program
+   then
+      obtain_the_testcases_of_the_gnu_binutils_program
+   fi
+}
+
 generate_the_output_of_the_afl-fuzz_command_with_the_gnu_coreutils_program()
 {
    cd $directory_path/lava_corpus/LAVA-M/$input_program
    mkdir $directory_path/lava_corpus/LAVA-M/$input_program/outputs
    if [ -z "$llvm_mode" ]
    then
-      /usr/local/bin/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$input_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$input_program/outputs/ -- $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program -d
+      /usr/local/bin/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$input_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$input_program/outputs/ -x $directory_path/testcases -- $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program -d
    else
-      $directory_path/AFL/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$input_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$input_program/outputs/ -- $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program -d
+      $directory_path/AFL/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$input_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$input_program/outputs/ -x $directory_path/testcases -- $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program -d
    fi
 }
 
@@ -184,9 +224,9 @@ generate_the_output_of_the_afl-fuzz_command_with_the_gnu_binutils_program()
    mkdir $directory_path/output
    if [ -z "$llvm_mode" ]
    then
-      /usr/local/bin/afl-fuzz -i $directory_path/input -o $directory_path/output $directory_path/binutils-2.35.2/binutils/$input_program -a @@
+      /usr/local/bin/afl-fuzz -i $directory_path/input -o $directory_path/output -x $directory_path/testcases $directory_path/binutils-2.35.2/binutils/$input_program -a @@
    else
-      $directory_path/AFL/afl-fuzz -i $directory_path/input -o $directory_path/output $directory_path/binutils-2.35.2/binutils/$input_program -a @@
+      $directory_path/AFL/afl-fuzz -i $directory_path/input -o $directory_path/output -x $directory_path/testcases $directory_path/binutils-2.35.2/binutils/$input_program -a @@
    fi
 }
 
@@ -340,6 +380,7 @@ fi
 build_afl
 build_the_input_program
 indicate_that_the_AFL_build_of_the_input_program_includes_a_vulnerability
+obtain_the_testcases_of_the_input_program
 generate_the_output_of_the_afl-fuzz_command_with_the_input_program
 install_the_dependencies_to_create_the_AFL_coverage_of_the_input_program
 create_the_AFL_coverage_of_the_input_program
