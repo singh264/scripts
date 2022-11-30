@@ -162,7 +162,12 @@ build_the_input_program()
 
 indicate_that_the_AFL_build_of_the_gnu_coreutils_program_includes_a_vulnerability()
 {
-   $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program -d $directory_path/lava_corpus/LAVA-M/$input_program/inputs/utmp-fuzzed-1.b64
+   cd $directory_path/lava_corpus/LAVA-M/$input_program
+   if [ $input_program = "base64" ]
+   then
+      $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program -d $directory_path/lava_corpus/LAVA-M/$input_program/inputs/utmp-fuzzed-1.b64
+   fi
+   sudo bash $directory_path/lava_corpus/LAVA-M/$input_program/validate.sh
 }
 
 indicate_that_the_AFL_build_of_the_input_program_includes_a_vulnerability()
@@ -206,13 +211,38 @@ obtain_the_testcases_of_the_input_program()
 
 generate_the_output_of_the_afl-fuzz_command_with_the_gnu_coreutils_program()
 {
-   cd $directory_path/lava_corpus/LAVA-M/$input_program
-   mkdir $directory_path/lava_corpus/LAVA-M/$input_program/outputs
-   if [ -z "$llvm_mode" ]
+   if [ $input_program = "base64" ]
    then
-      /usr/local/bin/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$input_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$input_program/outputs/ -x $directory_path/testcases -- $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program -d
-   else
-      $directory_path/AFL/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$input_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$input_program/outputs/ -x $directory_path/testcases -- $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program -d
+      if [ -z "$llvm_mode" ]
+      then
+         /usr/local/bin/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$input_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$input_program/outputs/ -x $directory_path/testcases -- $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program -d
+      else
+         $directory_path/AFL/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$input_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$input_program/outputs/ -x $directory_path/testcases -- $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program -d
+      fi
+   elif [ $input_program = "md5sum" ]
+   then
+      if [ -z "$llvm_mode" ]
+      then
+         /usr/local/bin/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$input_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$input_program/outputs/ -x $directory_path/testcases -- $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program -c
+      else
+         #$directory_path/AFL/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$input_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$input_program/outputs/ -x $directory_path/testcases -- $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program -c
+      fi
+   elif [ $input_program = "uniq" ]
+   then
+      if [ -z "$llvm_mode" ]
+      then
+         /usr/local/bin/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$input_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$input_program/outputs/ -x $directory_path/testcases -- $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program
+      else
+         $directory_path/AFL/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$input_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$input_program/outputs/ -x $directory_path/testcases -- $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program
+      fi
+   elif [ $input_program = "who" ]
+   then
+      if [ -z "$llvm_mode" ]
+      then
+         /usr/local/bin/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$input_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$input_program/outputs/ -x $directory_path/testcases -- $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program
+      else
+         $directory_path/AFL/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$input_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$input_program/outputs/ -x $directory_path/testcases -- $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program
+      fi
    fi
 }
 
@@ -345,7 +375,19 @@ create_the_AFL_coverage_of_the_input_program()
 generate_the_output_of_the_afl-cov_command_that_is_run_with_the_gnu_coreutils_program()
 {
    cd $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov/lava-install/bin
-   $directory_path/afl-cov/afl-cov -d $directory_path/lava_corpus/LAVA-M/$input_program/outputs --coverage-cmd "/bin/cat AFL_FILE | $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov/lava-install/bin/$input_program -d" --code-dir $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov/src
+   if [ $input_program = "base64" ]
+   then
+      $directory_path/afl-cov/afl-cov -d $directory_path/lava_corpus/LAVA-M/$input_program/outputs --coverage-cmd "/bin/cat AFL_FILE | $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov/lava-install/bin/$input_program -d" --code-dir $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov/src
+   elif [ $input_program = "md5sum" ]
+   then
+      $directory_path/afl-cov/afl-cov -d $directory_path/lava_corpus/LAVA-M/$input_program/outputs --coverage-cmd "/bin/cat AFL_FILE | $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov/lava-install/bin/$input_program -c" --code-dir $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov/src
+   elif [ $input_program = "uniq" ]
+   then
+      $directory_path/afl-cov/afl-cov -d $directory_path/lava_corpus/LAVA-M/$input_program/outputs --coverage-cmd "/bin/cat AFL_FILE | $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov/lava-install/bin/$input_program" --code-dir $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov/src
+   elif [ $input_program = "who" ]
+   then
+      $directory_path/afl-cov/afl-cov -d $directory_path/lava_corpus/LAVA-M/$input_program/outputs --coverage-cmd "/bin/cat AFL_FILE | $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov/lava-install/bin/$input_program" --code-dir $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov/src
+   fi
 }
 
 generate_the_output_of_the_afl-cov_command_that_is_run_with_the_gnu_binutils_program()
