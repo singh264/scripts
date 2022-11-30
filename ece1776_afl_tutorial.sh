@@ -225,7 +225,7 @@ generate_the_output_of_the_afl-fuzz_command_with_the_gnu_coreutils_program()
       then
          /usr/local/bin/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$input_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$input_program/outputs/ -x $directory_path/testcases -- $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program -c
       else
-         #$directory_path/AFL/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$input_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$input_program/outputs/ -x $directory_path/testcases -- $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program -c
+         $directory_path/AFL/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$input_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$input_program/outputs/ -x $directory_path/testcases -- $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program -c
       fi
    elif [ $input_program = "uniq" ]
    then
