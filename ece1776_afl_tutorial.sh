@@ -252,11 +252,46 @@ generate_the_output_of_the_afl-fuzz_command_with_the_gnu_binutils_program()
    mkdir $directory_path/input
    cp /bin/ps $directory_path/input
    mkdir $directory_path/output
-   if [ -z "$llvm_mode" ]
+   if [ $input_program = "readelf" ]
    then
-      /usr/local/bin/afl-fuzz -i $directory_path/input -o $directory_path/output -x $directory_path/testcases $directory_path/binutils-2.35.2/binutils/$input_program -a @@
-   else
-      $directory_path/AFL/afl-fuzz -i $directory_path/input -o $directory_path/output -x $directory_path/testcases $directory_path/binutils-2.35.2/binutils/$input_program -a @@
+      if [ -z "$llvm_mode" ]
+      then
+         /usr/local/bin/afl-fuzz -i $directory_path/input -o $directory_path/output -x $directory_path/testcases $directory_path/binutils-2.35.2/binutils/$input_program -a @@
+      else
+         $directory_path/AFL/afl-fuzz -i $directory_path/input -o $directory_path/output -x $directory_path/testcases $directory_path/binutils-2.35.2/binutils/$input_program -a @@
+      fi
+   elif [ $input_program = "addr2line" ]
+   then
+      if [ -z "$llvm_mode" ]
+      then
+         /usr/local/bin/afl-fuzz -i $directory_path/input -o $directory_path/output -x $directory_path/testcases $directory_path/binutils-2.35.2/binutils/$input_program -e @@
+      else
+         $directory_path/AFL/afl-fuzz -i $directory_path/input -o $directory_path/output -x $directory_path/testcases $directory_path/binutils-2.35.2/binutils/$input_program -e @@
+      fi
+   elif [ $input_program = "ar" ]
+   then
+      if [ -z "$llvm_mode" ]
+      then
+         /usr/local/bin/afl-fuzz -i $directory_path/input -o $directory_path/output -x $directory_path/testcases $directory_path/binutils-2.35.2/binutils/$input_program r ar.a @@
+      else
+         $directory_path/AFL/afl-fuzz -i $directory_path/input -o $directory_path/output -x $directory_path/testcases $directory_path/binutils-2.35.2/binutils/$input_program r ar.a @@
+      fi
+   elif [ $input_program = "nm-new" ]
+   then
+      if [ -z "$llvm_mode" ]
+      then
+         /usr/local/bin/afl-fuzz -i $directory_path/input -o $directory_path/output -x $directory_path/testcases $directory_path/binutils-2.35.2/binutils/$input_program -A @@
+      else
+         $directory_path/AFL/afl-fuzz -i $directory_path/input -o $directory_path/output -x $directory_path/testcases $directory_path/binutils-2.35.2/binutils/$input_program -A @@
+      fi
+   elif [ $input_program = "objdump" ]
+   then
+      if [ -z "$llvm_mode" ]
+      then
+         /usr/local/bin/afl-fuzz -i $directory_path/input -o $directory_path/output -x $directory_path/testcases $directory_path/binutils-2.35.2/binutils/$input_program -s @@
+      else
+         $directory_path/AFL/afl-fuzz -i $directory_path/input -o $directory_path/output -x $directory_path/testcases $directory_path/binutils-2.35.2/binutils/$input_program -s @@
+      fi
    fi
 }
 
@@ -410,7 +445,7 @@ INPUT="$@"
 initialize_the_variables $INPUT
 if [ -z $input_program ] || ( ! is_the_input_program_the_gnu_binutils_program && ! is_the_input_program_the_gnu_coreutils_program )
 then
-    echo "Provide the input program that could be base64, md5sum, uniq, who, readelf, addr2line and ar."
+    echo "Provide the input program that could be base64, md5sum, uniq, who, readelf, addr2line, ar, nm-new and objdump."
     exit
 fi
 if [[ -z "$directory_path" || ! -d "$directory_path" ]]
