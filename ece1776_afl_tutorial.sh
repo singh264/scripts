@@ -427,7 +427,22 @@ generate_the_output_of_the_afl-cov_command_that_is_run_with_the_gnu_coreutils_pr
 
 generate_the_output_of_the_afl-cov_command_that_is_run_with_the_gnu_binutils_program()
 {
-   sudo $directory_path/afl-cov/afl-cov -d $directory_path/output --coverage-cmd "/bin/cat AFL_FILE | $directory_path/gcov/binutils-2.35.2/binutils/$input_program -d" --code-dir $directory_path/gcov/binutils-2.35.2/binutils
+   if [ $input_program = "readelf" ]
+   then
+      sudo $directory_path/afl-cov/afl-cov -d $directory_path/output --coverage-cmd "/bin/cat AFL_FILE | $directory_path/gcov/binutils-2.35.2/binutils/$input_program -a" --code-dir $directory_path/gcov/binutils-2.35.2/binutils
+   elif [ $input_program = "addr2line" ]
+   then
+      sudo $directory_path/afl-cov/afl-cov -d $directory_path/output --coverage-cmd "/bin/cat AFL_FILE | $directory_path/gcov/binutils-2.35.2/binutils/$input_program -e" --code-dir $directory_path/gcov/binutils-2.35.2/binutils
+   elif [ $input_program = "ar" ]
+   then
+      sudo $directory_path/afl-cov/afl-cov -d $directory_path/output --coverage-cmd "/bin/cat AFL_FILE | $directory_path/gcov/binutils-2.35.2/binutils/$input_program r ar.a" --code-dir $directory_path/gcov/binutils-2.35.2/binutils
+   elif [ $input_program = "nm-new" ]
+   then
+      sudo $directory_path/afl-cov/afl-cov -d $directory_path/output --coverage-cmd "/bin/cat AFL_FILE | $directory_path/gcov/binutils-2.35.2/binutils/$input_program -A" --code-dir $directory_path/gcov/binutils-2.35.2/binutils
+   elif [ $input_program = "objdump" ]
+   then
+      sudo $directory_path/afl-cov/afl-cov -d $directory_path/output --coverage-cmd "/bin/cat AFL_FILE | $directory_path/gcov/binutils-2.35.2/binutils/$input_program -s" --code-dir $directory_path/gcov/binutils-2.35.2/binutils
+   fi
 }
 
 generate_the_output_of_the_afl-cov_command_that_is_run_with_the_input_program()
