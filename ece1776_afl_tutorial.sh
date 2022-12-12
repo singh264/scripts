@@ -54,12 +54,8 @@ is_the_input_program_the_gnu_binutils_program()
    return 0
 }
 
-build_afl() 
+modify_the_afl_config_file()
 {
-    cd $directory_path
-    sudo apt-get install -y git
-    git clone https://github.com/singh264/AFL.git
-
     if [ ! -z "$input_program" ]
     then
 	sed -i'' -e "s/#define INPUT_PROGRAM .*/#define INPUT_PROGRAM \"$input_program\"/g" $directory_path/AFL/config.h
@@ -81,6 +77,14 @@ build_afl()
     then
        sed -i'' -e "s/#define MAX_DICT_FILE .*/#define MAX_DICT_FILE $max_dict_file/g" $directory_path/AFL/config.h
     fi
+}
+
+build_afl()
+{
+    cd $directory_path
+    sudo apt-get -y install git
+    git clone https://github.com/singh264/AFL.git
+    modify_the_afl_config_file
 
     cd $directory_path/AFL
     sudo apt-get -y update
@@ -95,8 +99,8 @@ build_afl()
        wget https://releases.llvm.org/8.0.0/clang+llvm-8.0.0-x86_64-linux-gnu-ubuntu-18.04.tar.xz
        tar xvf $directory_path/clang+llvm-8.0.0-x86_64-linux-gnu-ubuntu-18.04.tar.xz
        export PATH="$directory_path/clang+llvm-8.0.0-x86_64-linux-gnu-ubuntu-18.04/bin:$PATH"
-       sudo apt -y install libncurses5
-       sudo apt -y install clang
+       sudo apt-get -y install libncurses5
+       sudo apt-get -y install clang
        cd $directory_path/AFL
        sudo gmake clean
        sudo gmake && gmake -C llvm_mode
