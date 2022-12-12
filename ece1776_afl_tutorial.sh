@@ -110,14 +110,14 @@ build_afl()
 build_the_gnu_coreutils_program()
 {
    cd $directory_path
-   sudo apt-get install -y wget
+   sudo apt-get -y install wget
    wget http://panda.moyix.net/~moyix/lava_corpus.tar.xz
    tar -xvf $directory_path/lava_corpus.tar.xz
    cd $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe
-   sudo apt-get install -y libacl1-dev
-   sed -i 's/IO_ftrylockfile/IO_EOF_SEEN/' lib/*.c
-   echo "#define _IO_IN_BACKUP 0x100" >> lib/stdio-impl.h
-   sed -i '1s/^/#include <sys\/sysmacros.h>\n/' lib/mountlist.c
+   sudo apt-get -y install libacl1-dev
+   sed -i 's/IO_ftrylockfile/IO_EOF_SEEN/' $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lib/*.c
+   echo "#define _IO_IN_BACKUP 0x100" >> $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lib/stdio-impl.h
+   sed -i '1s/^/#include <sys\/sysmacros.h>\n/' $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lib/mountlist.c
    if [ -z "$llvm_mode" ]
    then
       CC=/usr/local/bin/afl-gcc CXX=/usr/local/bin/afl-g++ $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/configure --prefix=`pwd`/lava-install LIBS="-lacl"
