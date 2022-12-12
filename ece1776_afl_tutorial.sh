@@ -139,8 +139,8 @@ build_the_gnu_binutils_program()
    tar -xvf $directory_path/m4-1.4.13.tar.gz
    cd $directory_path/m4-1.4.13
    $directory_path/m4-1.4.13/configure
-   sed -i 's/IO_ftrylockfile/IO_EOF_SEEN/' lib/*.c
-   echo "#define _IO_IN_BACKUP 0x100" >> lib/stdio-impl.h
+   sed -i 's/IO_ftrylockfile/IO_EOF_SEEN/' $directory_path/m4-1.4.13/lib/*.c
+   echo "#define _IO_IN_BACKUP 0x100" >> $directory_path/m4-1.4.13/lib/stdio-impl.h
    sudo make install
    cd $directory_path/binutils-2.35.2/
    if [ -z "$llvm_mode" ]
