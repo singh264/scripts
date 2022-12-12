@@ -178,23 +178,26 @@ indicate_that_the_AFL_build_of_the_input_program_includes_a_vulnerability()
    fi
 }
 
-obtain_the_testcases_of_the_gnu_coreutils_program()
+obtain_the_script_to_create_the_testcases_of_the_input_program()
 {
    cd $directory_path
    wget https://gist.githubusercontent.com/moyix/c042090d9beb6b1a7cb39f6162cd6128/raw/3c4571c2851cfbdb296a9ba5493c91ac7bacb69c/make_testcases.sh
    mkdir $directory_path/testcases
    sudo apt-get -y install python2
    sed -i 's/python /python2 /g' $directory_path/make_testcases.sh
+}
+
+obtain_the_testcases_of_the_gnu_coreutils_program()
+{
+   cd $directory_path
+   obtain_the_script_to_create_the_testcases_of_the_input_program
    bash $directory_path/make_testcases.sh $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program
 }
 
 obtain_the_testcases_of_the_gnu_binutils_program()
 {
    cd $directory_path
-   wget https://gist.githubusercontent.com/moyix/c042090d9beb6b1a7cb39f6162cd6128/raw/3c4571c2851cfbdb296a9ba5493c91ac7bacb69c/make_testcases.sh
-   mkdir $directory_path/testcases
-   sudo apt-get -y install python2
-   sed -i 's/python /python2 /g' $directory_path/make_testcases.sh
+   obtain_the_script_to_create_the_testcases_of_the_input_program
    bash $directory_path/make_testcases.sh $directory_path/binutils-2.35.2/binutils/$input_program
 }
 
