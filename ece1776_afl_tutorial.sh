@@ -166,11 +166,7 @@ build_the_input_program()
 
 indicate_that_the_AFL_build_of_the_gnu_coreutils_program_includes_a_vulnerability()
 {
-   cd $directory_path/lava_corpus/LAVA-M/$input_program
-   if [ $input_program = "base64" ]
-   then
-      $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program -d $directory_path/lava_corpus/LAVA-M/$input_program/inputs/utmp-fuzzed-1.b64
-   fi
+   cd $directory_path
    sudo bash $directory_path/lava_corpus/LAVA-M/$input_program/validate.sh
 }
 
