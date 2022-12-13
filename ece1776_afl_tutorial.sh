@@ -356,40 +356,14 @@ create_the_AFL_coverage_of_the_input_program()
 
 generate_the_output_of_the_afl-cov_command_that_is_run_with_the_gnu_coreutils_program()
 {
-   cd $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov/lava-install/bin
-   if [ $input_program = "base64" ]
-   then
-      $directory_path/afl-cov/afl-cov -d $directory_path/lava_corpus/LAVA-M/$input_program/outputs --coverage-cmd "/bin/cat AFL_FILE | $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov/lava-install/bin/$input_program -d" --code-dir $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov/src
-   elif [ $input_program = "md5sum" ]
-   then
-      $directory_path/afl-cov/afl-cov -d $directory_path/lava_corpus/LAVA-M/$input_program/outputs --coverage-cmd "/bin/cat AFL_FILE | $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov/lava-install/bin/$input_program -c" --code-dir $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov/src
-   elif [ $input_program = "uniq" ]
-   then
-      $directory_path/afl-cov/afl-cov -d $directory_path/lava_corpus/LAVA-M/$input_program/outputs --coverage-cmd "/bin/cat AFL_FILE | $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov/lava-install/bin/$input_program" --code-dir $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov/src
-   elif [ $input_program = "who" ]
-   then
-      $directory_path/afl-cov/afl-cov -d $directory_path/lava_corpus/LAVA-M/$input_program/outputs --coverage-cmd "/bin/cat AFL_FILE | $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov/lava-install/bin/$input_program" --code-dir $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov/src
-   fi
+   cd $directory_path
+   $directory_path/afl-cov/afl-cov -d $directory_path/lava_corpus/LAVA-M/$input_program/outputs --coverage-cmd "/bin/cat AFL_FILE | $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov/lava-install/bin/$input_program ${input_program_option[$input_program]}" --code-dir $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov/src
 }
 
 generate_the_output_of_the_afl-cov_command_that_is_run_with_the_gnu_binutils_program()
 {
-   if [ $input_program = "readelf" ]
-   then
-      sudo $directory_path/afl-cov/afl-cov -d $directory_path/output --coverage-cmd "/bin/cat AFL_FILE | $directory_path/gcov/binutils-2.35.2/binutils/$input_program -a" --code-dir $directory_path/gcov/binutils-2.35.2/binutils
-   elif [ $input_program = "addr2line" ]
-   then
-      sudo $directory_path/afl-cov/afl-cov -d $directory_path/output --coverage-cmd "/bin/cat AFL_FILE | $directory_path/gcov/binutils-2.35.2/binutils/$input_program -e" --code-dir $directory_path/gcov/binutils-2.35.2/binutils
-   elif [ $input_program = "ar" ]
-   then
-      sudo $directory_path/afl-cov/afl-cov -d $directory_path/output --coverage-cmd "/bin/cat AFL_FILE | $directory_path/gcov/binutils-2.35.2/binutils/$input_program r ar.a" --code-dir $directory_path/gcov/binutils-2.35.2/binutils
-   elif [ $input_program = "nm-new" ]
-   then
-      sudo $directory_path/afl-cov/afl-cov -d $directory_path/output --coverage-cmd "/bin/cat AFL_FILE | $directory_path/gcov/binutils-2.35.2/binutils/$input_program -A" --code-dir $directory_path/gcov/binutils-2.35.2/binutils
-   elif [ $input_program = "objdump" ]
-   then
-      sudo $directory_path/afl-cov/afl-cov -d $directory_path/output --coverage-cmd "/bin/cat AFL_FILE | $directory_path/gcov/binutils-2.35.2/binutils/$input_program -s" --code-dir $directory_path/gcov/binutils-2.35.2/binutils
-   fi
+   cd $directory_path
+   sudo $directory_path/afl-cov/afl-cov -d $directory_path/output --coverage-cmd "/bin/cat AFL_FILE | $directory_path/gcov/binutils-2.35.2/binutils/$input_program ${input_program_option[$input_program]}" --code-dir $directory_path/gcov/binutils-2.35.2/binutils
 }
 
 generate_the_output_of_the_afl-cov_command_that_is_run_with_the_input_program()
