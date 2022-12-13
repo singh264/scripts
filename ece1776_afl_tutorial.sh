@@ -318,7 +318,7 @@ create_the_AFL_coverage_of_the_gnu_coreutils_program()
    cd $directory_path
    git clone https://github.com/mrash/afl-cov.git
    cd $directory_path/lava_corpus/LAVA-M/$input_program
-   cp -r $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov
+   sudo cp -r $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov
    cd $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov
    make clean distclean
    CFLAGS="-fprofile-arcs -ftest-coverage" $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov/configure --prefix=`pwd`/lava-install  LIBS="-lacl"
@@ -336,7 +336,7 @@ create_the_AFL_coverage_of_the_gnu_binutils_program()
    cd $directory_path/gcov/binutils-2.35.2/
    if [ -z "$llvm_mode" ]
    then
-      sudo CFLAGS="-g -O2 -fprofile-arcs -ftest-coverage" CC=/usr/local/bin/afl-gcc $directory_path/gcov/binutils-2.35.2/configure
+      sudo CC=/usr/local/bin/afl-gcc CFLAGS="-g -O2 -fprofile-arcs -ftest-coverage" $directory_path/gcov/binutils-2.35.2/configure
    else
       sudo CC=$directory_path/AFL/afl-gcc CFLAGS="-g -O2 -fprofile-arcs -ftest-coverage" $directory_path/gcov/binutils-2.35.2/configure
    fi
