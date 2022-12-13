@@ -278,7 +278,8 @@ install_the_dependencies_to_create_the_AFL_coverage_of_the_gnu_coreutils_program
    make
    sudo make install
 
-   sudo apt-get install -y gperf
+   cd $directory_path
+   sudo apt-get -y install gperf
 
    cd $directory_path
    wget http://ftp.gnu.org/gnu/texinfo/texinfo-6.8.tar.gz
@@ -288,16 +289,17 @@ install_the_dependencies_to_create_the_AFL_coverage_of_the_gnu_coreutils_program
    make
    sudo make install
 
-   sudo apt-get install -y makeinfo
-   sudo apt-get install -y python2
-   sudo apt-get install -y lcov
+   cd $directory_path
+   sudo apt-get -y install makeinfo
+   sudo apt-get -y install python2
+   sudo apt-get -y install lcov
 }
 
 install_the_dependencies_to_create_the_AFL_coverage_of_the_gnu_binutils_program()
 {
    cd $directory_path
-   sudo apt-get install -y python2
-   sudo apt-get install -y lcov
+   sudo apt-get -y install python2
+   sudo apt-get -y install lcov
 }
 
 install_the_dependencies_to_create_the_AFL_coverage_of_the_input_program()
