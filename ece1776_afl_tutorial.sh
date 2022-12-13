@@ -8,6 +8,9 @@ map_size_pow2=""
 llvm_mode=""
 max_dict_file=""
 
+declare -A input_program_option=( ["base64"]="-d" ["md5sum"]="-c" ["uniq"]="" ["who"]="" \
+	                          ["readelf"]="-a" ["addr2line"]="-e" ["ar"]="r ar.a" ["nm-new"]="-A" ["objdump"]="-s" )
+
 initialize_the_variables()
 {
     for var in "$@"
@@ -214,38 +217,12 @@ obtain_the_testcases_of_the_input_program()
 
 generate_the_output_of_the_afl-fuzz_command_with_the_gnu_coreutils_program()
 {
-   if [ $input_program = "base64" ]
+   cd $directory_path
+   if [ -z "$llvm_mode" ]
    then
-      if [ -z "$llvm_mode" ]
-      then
-         /usr/local/bin/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$input_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$input_program/outputs/ -x $directory_path/testcases -- $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program -d
-      else
-         $directory_path/AFL/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$input_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$input_program/outputs/ -x $directory_path/testcases -- $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program -d
-      fi
-   elif [ $input_program = "md5sum" ]
-   then
-      if [ -z "$llvm_mode" ]
-      then
-         /usr/local/bin/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$input_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$input_program/outputs/ -x $directory_path/testcases -- $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program -c
-      else
-         $directory_path/AFL/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$input_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$input_program/outputs/ -x $directory_path/testcases -- $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program -c
-      fi
-   elif [ $input_program = "uniq" ]
-   then
-      if [ -z "$llvm_mode" ]
-      then
-         /usr/local/bin/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$input_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$input_program/outputs/ -x $directory_path/testcases -- $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program
-      else
-         $directory_path/AFL/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$input_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$input_program/outputs/ -x $directory_path/testcases -- $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program
-      fi
-   elif [ $input_program = "who" ]
-   then
-      if [ -z "$llvm_mode" ]
-      then
-         /usr/local/bin/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$input_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$input_program/outputs/ -x $directory_path/testcases -- $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program
-      else
-         $directory_path/AFL/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$input_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$input_program/outputs/ -x $directory_path/testcases -- $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program
-      fi
+      /usr/local/bin/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$input_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$input_program/outputs/ -x $directory_path/testcases -- $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program ${input_program_option[$input_program]}
+   else
+      $directory_path/AFL/afl-fuzz -i $directory_path/lava_corpus/LAVA-M/$input_program/fuzzer_input/ -o $directory_path/lava_corpus/LAVA-M/$input_program/outputs/ -x $directory_path/testcases -- $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe/lava-install/bin/$input_program ${input_program_option[$input_program]}
    fi
 }
 
@@ -255,46 +232,11 @@ generate_the_output_of_the_afl-fuzz_command_with_the_gnu_binutils_program()
    mkdir $directory_path/input
    cp /bin/ps $directory_path/input
    mkdir $directory_path/output
-   if [ $input_program = "readelf" ]
+   if [ -z "$llvm_mode" ]
    then
-      if [ -z "$llvm_mode" ]
-      then
-         /usr/local/bin/afl-fuzz -i $directory_path/input -o $directory_path/output -x $directory_path/testcases $directory_path/binutils-2.35.2/binutils/$input_program -a @@
-      else
-         $directory_path/AFL/afl-fuzz -i $directory_path/input -o $directory_path/output -x $directory_path/testcases $directory_path/binutils-2.35.2/binutils/$input_program -a @@
-      fi
-   elif [ $input_program = "addr2line" ]
-   then
-      if [ -z "$llvm_mode" ]
-      then
-         /usr/local/bin/afl-fuzz -i $directory_path/input -o $directory_path/output -x $directory_path/testcases $directory_path/binutils-2.35.2/binutils/$input_program -e @@
-      else
-         $directory_path/AFL/afl-fuzz -i $directory_path/input -o $directory_path/output -x $directory_path/testcases $directory_path/binutils-2.35.2/binutils/$input_program -e @@
-      fi
-   elif [ $input_program = "ar" ]
-   then
-      if [ -z "$llvm_mode" ]
-      then
-         /usr/local/bin/afl-fuzz -i $directory_path/input -o $directory_path/output -x $directory_path/testcases $directory_path/binutils-2.35.2/binutils/$input_program r ar.a @@
-      else
-         $directory_path/AFL/afl-fuzz -i $directory_path/input -o $directory_path/output -x $directory_path/testcases $directory_path/binutils-2.35.2/binutils/$input_program r ar.a @@
-      fi
-   elif [ $input_program = "nm-new" ]
-   then
-      if [ -z "$llvm_mode" ]
-      then
-         /usr/local/bin/afl-fuzz -i $directory_path/input -o $directory_path/output -x $directory_path/testcases $directory_path/binutils-2.35.2/binutils/$input_program -A @@
-      else
-         $directory_path/AFL/afl-fuzz -i $directory_path/input -o $directory_path/output -x $directory_path/testcases $directory_path/binutils-2.35.2/binutils/$input_program -A @@
-      fi
-   elif [ $input_program = "objdump" ]
-   then
-      if [ -z "$llvm_mode" ]
-      then
-         /usr/local/bin/afl-fuzz -i $directory_path/input -o $directory_path/output -x $directory_path/testcases $directory_path/binutils-2.35.2/binutils/$input_program -s @@
-      else
-         $directory_path/AFL/afl-fuzz -i $directory_path/input -o $directory_path/output -x $directory_path/testcases $directory_path/binutils-2.35.2/binutils/$input_program -s @@
-      fi
+      /usr/local/bin/afl-fuzz -i $directory_path/input -o $directory_path/output -x $directory_path/testcases $directory_path/binutils-2.35.2/binutils/$input_program ${input_program_option[$input_program]} @@
+   else
+      $directory_path/AFL/afl-fuzz -i $directory_path/input -o $directory_path/output -x $directory_path/testcases $directory_path/binutils-2.35.2/binutils/$input_program ${input_program_option[$input_program]} @@
    fi
 }
 
