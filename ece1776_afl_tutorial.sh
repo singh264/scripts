@@ -320,10 +320,10 @@ create_the_AFL_coverage_of_the_gnu_coreutils_program()
    cd $directory_path/lava_corpus/LAVA-M/$input_program
    sudo cp -r $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov
    cd $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov
-   make clean distclean
-   CFLAGS="-fprofile-arcs -ftest-coverage" $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov/configure --prefix=`pwd`/lava-install  LIBS="-lacl"
-   make
-   make install
+   sudo make clean distclean
+   sudo CFLAGS="-fprofile-arcs -ftest-coverage" FORCE_UNSAFE_CONFIGURE=1 $directory_path/lava_corpus/LAVA-M/$input_program/coreutils-8.24-lava-safe-gcov/configure --prefix=`pwd`/lava-install  LIBS="-lacl"
+   sudo make
+   sudo make install
 }
 
 create_the_AFL_coverage_of_the_gnu_binutils_program()
