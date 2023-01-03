@@ -389,6 +389,11 @@ then
     echo "Provide the directory path."
     exit
 fi
+if [[ $input_program == "md5sum" && ! -z $llvm_mode ]]
+then
+   echo "I think the script could be completed with the gnu coreutils program named md5sum and the llvm mode of the AFL fuzzer in the future."
+   exit
+fi
 
 build_afl
 build_the_input_program
