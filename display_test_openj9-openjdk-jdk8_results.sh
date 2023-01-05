@@ -134,11 +134,11 @@ test_openj9-openjdk-jdk8()
 
 display_the_test_openj9-openjdk-jdk8_results()
 {
-    if [ -d "$1/aqa-tests/TKG/output_compilation" ]
+    if [ -d "/home/user/refactor_wrappedcompile/aqa-tests/TKG/output_compilation" ]
     then
-	vim $1/aqa-tests/TKG/output_compilation/compilation.log
+        vim /home/user/refactor_wrappedcompile/aqa-tests/TKG/output_compilation/compilation.log
     else
-	vim $1/aqa-tests/TKG/output_*/Test_*
+        vim /home/user/refactor_wrappedcompile/aqa-tests/TKG/output_*/Test_*
     fi
 }
 
