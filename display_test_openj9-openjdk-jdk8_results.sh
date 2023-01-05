@@ -3,6 +3,7 @@
 echo "display_test_openj9-openjdk-jdk8_results.sh"
 
 openj9_branch=""
+directory_path=$PWD
 
 initialize_the_openj9_branch()
 {
@@ -20,7 +21,7 @@ initialize_the_openj9_branch()
 
 install_openj9-openjdk-jdk8_dependencies()
 {
-    cd /home/user/refactor_wrappedcompile/
+    cd $directory_path
 
     sudo apt-get update \
         && sudo apt-get install -qq -y --no-install-recommends \
@@ -79,32 +80,32 @@ install_openj9-openjdk-jdk8_dependencies()
     tar -xzf freemarker.tgz freemarker-2.3.8/lib/freemarker.jar --strip-components=2
 
     wget -O bootjdk8.tar.gz "https://api.adoptopenjdk.net/v3/binary/latest/8/ga/linux/x64/jdk/openj9/normal/adoptopenjdk"
-    tar -xzf /home/user/refactor_wrappedcompile/bootjdk8.tar.gz
-    mkdir /home/user/refactor_wrappedcompile/tmp/
-    mv /home/user/refactor_wrappedcompile/bootjdk8.tar.gz /home/user/refactor_wrappedcompile/tmp/
-    mv $(ls /home/user/refactor_wrappedcompile/ | grep -i jdk8u) /home/user/refactor_wrappedcompile/bootjdk8
+    tar -xzf $directory_path/bootjdk8.tar.gz
+    mkdir $directory_path/tmp/
+    mv $directory_path/bootjdk8.tar.gz $directory_path/tmp/
+    mv $(ls $directory_path | grep -i jdk8u) $directory_path/bootjdk8
 
     git clone https://github.com/ibmruntimes/openj9-openjdk-jdk8.git
 }
 
 build_openj9-openjdk-jdk8()
 {
-    cd /home/user/refactor_wrappedcompile/openj9-openjdk-jdk8/
-    bash /home/user/refactor_wrappedcompile/openj9-openjdk-jdk8/get_source.sh
+    cd $directory_path/openj9-openjdk-jdk8/
+    bash $directory_path/openj9-openjdk-jdk8/get_source.sh
     make clean
-    bash /home/user/refactor_wrappedcompile/openj9-openjdk-jdk8/configure --with-boot-jdk=/home/user/refactor_wrappedcompile/bootjdk8
+    bash $directory_path/openj9-openjdk-jdk8/configure --with-boot-jdk=$directory_path/bootjdk8
     make all
 }
 
 check_openj9-openjdk-jdk8()
 {
-    cd /home/user/refactor_wrappedcompile/openj9-openjdk-jdk8/build/linux-x86_64-normal-server-release/images/j2re-image/
-    /home/user/refactor_wrappedcompile/openj9-openjdk-jdk8/build/linux-x86_64-normal-server-release/images/j2re-image/bin/java -version
+    cd $directory_path/openj9-openjdk-jdk8/build/linux-x86_64-normal-server-release/images/j2re-image/
+    $directory_path/openj9-openjdk-jdk8/build/linux-x86_64-normal-server-release/images/j2re-image/bin/java -version
 }
 
 openj9_checkout_remote_branch()
 {
-    cd /home/user/refactor_wrappedcompile/openj9-openjdk-jdk8/openj9/
+    cd $directory_path/openj9-openjdk-jdk8/openj9/
     git remote add local https://github.com/singh264/openj9.git
     git fetch --prune local
     git checkout -b $openj9_branch local/$openj9_branch
@@ -113,32 +114,32 @@ openj9_checkout_remote_branch()
 
 obtain_the_branch_in_the_build()
 {
-    cd /home/user/refactor_wrappedcompile/openj9-openjdk-jdk8/build/linux-x86_64-normal-server-release/images/test/openj9/
-    echo /home/user/refactor_wrappedcompile/openj9-openjdk-jdk8/build/linux-x86_64-normal-server-release/images/test/openj9/java-version.txt | grep $openj9_branch | cut -d' ' -f5 | cut -d'-' -f1
+    cd $directory_path/openj9-openjdk-jdk8/build/linux-x86_64-normal-server-release/images/test/openj9/
+    echo $directory_path/openj9-openjdk-jdk8/build/linux-x86_64-normal-server-release/images/test/openj9/java-version.txt | grep $openj9_branch | cut -d' ' -f5 | cut -d'-' -f1
 }
 
 test_openj9-openjdk-jdk8()
 {
-    cd /home/user/refactor_wrappedcompile/
-    export TEST_JDK_HOME=/home/user/refactor_wrappedcompile/openj9-openjdk-jdk8/build/linux-x86_64-normal-server-release/images/j2sdk-image
+    cd $directory_path
+    export TEST_JDK_HOME=$directory_path/openj9-openjdk-jdk8/build/linux-x86_64-normal-server-release/images/j2sdk-image
     export BUILD_LIST=functional
     git clone https://github.com/adoptium/aqa-tests.git
-    cd /home/user/refactor_wrappedcompile/aqa-tests/
-    bash /home/user/refactor_wrappedcompile/aqa-tests/get.sh
-    cd /home/user/refactor_wrappedcompile/aqa-tests/TKG/
+    cd $directory_path/aqa-tests/
+    bash $directory_path/aqa-tests/get.sh
+    cd $directory_path/aqa-tests/TKG/
     make clean
     make compile
-    export NATIVE_TEST_LIBS=/home/user/refactor_wrappedcompile/openj9-openjdk-jdk8/build/linux-x86_64-normal-server-release/images/test/openj9
+    export NATIVE_TEST_LIBS=$directory_path/openj9-openjdk-jdk8/build/linux-x86_64-normal-server-release/images/test/openj9
     make _sanity.functional
 }
 
 display_the_test_openj9-openjdk-jdk8_results()
 {
-    if [ -d "/home/user/refactor_wrappedcompile/aqa-tests/TKG/output_compilation" ]
+    if [ -d "$directory_path/aqa-tests/TKG/output_compilation" ]
     then
-        vim /home/user/refactor_wrappedcompile/aqa-tests/TKG/output_compilation/compilation.log
+	vim $directory_path/aqa-tests/TKG/output_compilation/compilation.log
     else
-        vim /home/user/refactor_wrappedcompile/aqa-tests/TKG/output_*/Test_*
+	vim $directory_path/aqa-tests/TKG/output_*/Test_*
     fi
 }
 
@@ -156,7 +157,7 @@ check_openj9-openjdk-jdk8
 openj9_checkout_remote_branch
 build_openj9-openjdk-jdk8
 
-branch=$(obtain_the_branch_in_the_build $DIRECTORY $openj9_branch)
+branch=$(obtain_the_branch_in_the_build $openj9_branch)
 if [[ -z "$branch" || $branch != $openj9_branch ]]
 then
     echo "The build could not complete with the openj9 branch $openj9_branch"
