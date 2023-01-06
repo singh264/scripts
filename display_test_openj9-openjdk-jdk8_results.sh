@@ -115,7 +115,8 @@ openj9_checkout_remote_branch()
 obtain_the_branch_in_the_build()
 {
     cd $directory_path/openj9-openjdk-jdk8/build/linux-x86_64-normal-server-release/images/test/openj9/
-    echo $directory_path/openj9-openjdk-jdk8/build/linux-x86_64-normal-server-release/images/test/openj9/java-version.txt | grep $openj9_branch | cut -d' ' -f5 | cut -d'-' -f1
+    output=$(cat $directory_path/openj9-openjdk-jdk8/build/linux-x86_64-normal-server-release/images/test/openj9/java-version.txt | grep $openj9_branch | cut -d' ' -f5 | cut -d'-' -f1)
+    echo $output
 }
 
 test_openj9-openjdk-jdk8()
