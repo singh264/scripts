@@ -3,6 +3,7 @@
 echo "display_test_openj9-openjdk-jdk8_results.sh"
 
 openj9_branch=""
+omr_branch=""
 directory_path=$PWD
 
 initialize_the_openj9_branch()
@@ -15,6 +16,9 @@ initialize_the_openj9_branch()
         if [ $key = '--openj9-branch' ]
         then
 	   openj9_branch=$value
+        elif [ $key = '--omr-branch' ]
+        then
+	   omr_branch=$value
         fi
     done
 }
@@ -86,12 +90,13 @@ install_openj9-openjdk-jdk8_dependencies()
     mv $(ls $directory_path | grep -i jdk8u) $directory_path/bootjdk8
 
     git clone https://github.com/ibmruntimes/openj9-openjdk-jdk8.git
+    cd $directory_path/openj9-openjdk-jdk8/
+    bash $directory_path/openj9-openjdk-jdk8/get_source.sh
 }
 
 build_openj9-openjdk-jdk8()
 {
     cd $directory_path/openj9-openjdk-jdk8/
-    bash $directory_path/openj9-openjdk-jdk8/get_source.sh
     make clean
     bash $directory_path/openj9-openjdk-jdk8/configure --with-boot-jdk=$directory_path/bootjdk8
     make all
@@ -109,7 +114,18 @@ openj9_checkout_remote_branch()
     git remote add local https://github.com/singh264/openj9.git
     git fetch --prune local
     git checkout -b $openj9_branch local/$openj9_branch
+    git checkout $openj9_branch
     git reset --hard local/$openj9_branch
+}
+
+omr_checkout_remote_branch()
+{
+    cd $directory_path/openj9-openjdk-jdk8/omr/
+    git remote add local  https://github.com/singh264/omr.git
+    git fetch --prune local
+    git checkout -b $omr_branch local/$omr_branch
+    git checkout $omr_branch
+    git reset --hard local/$omr_branch
 }
 
 obtain_the_branch_in_the_build()
@@ -150,12 +166,17 @@ if [ -z "$openj9_branch" ]
 then
     echo "openj9 branch absent"
     exit
+elif [ -z "$omr_branch" ]
+then
+    echo "omr branch absent"
+    exit
 fi
 
 install_openj9-openjdk-jdk8_dependencies
 build_openj9-openjdk-jdk8
 check_openj9-openjdk-jdk8
 openj9_checkout_remote_branch
+omr_checkout_remote_branch
 build_openj9-openjdk-jdk8
 
 branch=$(obtain_the_branch_in_the_build $openj9_branch)
